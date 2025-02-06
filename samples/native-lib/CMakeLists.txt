@@ -9,6 +9,7 @@ project(native_lib)
 
 ################ runtime settings  ##############
 string (TOLOWER ${CMAKE_HOST_SYSTEM_NAME} WAMR_BUILD_PLATFORM)
+message(STATUS "WAMR_BUILD_PLATFORM : ${WAMR_BUILD_PLATFORM}")
 if (APPLE)
   add_definitions(-DBH_PLATFORM_DARWIN)
 endif ()
@@ -43,11 +44,17 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 set (WAMR_BUILD_INTERP 1)
-set (WAMR_BUILD_AOT 1)
+set (WAMR_BUILD_AOT 0)
 set (WAMR_BUILD_JIT 0)
 set (WAMR_BUILD_LIBC_BUILTIN 1)
-set (WAMR_BUILD_FAST_INTERP 1)
+set (WAMR_BUILD_FAST_INTERP 0)
 
+set (WAMR_BUILD_LIBC_WASI 1)
+set (WAMR_BUILD_LIBC_EMCC 1)
+set(WAMR_BUILD_APP_MEMORY_SIZE 131072)   # アプリケーション用メモリサイズを128KB
+set(WAMR_BUILD_MEMORY_HEAP_SIZE 262144) # ヒープサイズを256KB
+
+message(STATUS "CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 # compiling and linking flags
 if (NOT (CMAKE_C_COMPILER MATCHES ".*clang.*" OR CMAKE_C_COMPILER_ID MATCHES ".*Clang"))
   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
@@ -63,6 +70,8 @@ include (${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
 add_library(libiwasm SHARED ${WAMR_RUNTIME_LIB_SOURCE})
 set_target_properties (libiwasm PROPERTIES OUTPUT_NAME iwasm)
 
+message(STATUS "WAMR_RUNTIME_LIB_SOURCE (3): ${WAMR_RUNTIME_LIB_SOURCE}")
+
 ################ wamr runtime ###################
 include (${SHARED_DIR}/utils/uncommon/shared_uncommon.cmake)
 
@@ -74,16 +83,36 @@ set (RUNTIME_SOURCE_ALL
 add_executable (iwasm ${RUNTIME_SOURCE_ALL})
 
 check_pie_supported()
+
 set_target_properties (iwasm PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(iwasm libiwasm -lpthread -lm -ldl)
+target_link_libraries(iwasm libiwasm -lpthread -lm -ldl )
 
 ################ native libraries ###############
 add_library (test_add SHARED test_add.c)
 add_library (test_sqrt SHARED test_sqrt.c)
 add_library (test_hello SHARED test_hello.c)
+
+set(NATIVELIB_DIR "/home/koichi/wasm-micro-runtime/samples/native-lib")
+
+set(GMP_INCLUDE_DIR ~/native_gmp/include)
+set(GMP_LIBRARY_DIR ~/native_gmp/lib)
+
+include_directories(${GMP_INCLUDE_DIR})
+link_directories(${GMP_LIBRARY_DIR})
+
+find_library(GMP_LIB NAMES gmp PATHS ${GMP_LIBRARY_DIR})
+message(STATUS "GMP_LIB : ${GMP_LIB}")
+
+add_library(test_rsa SHARED ${NATIVELIB_DIR}/native_gmp.c)
+
+target_link_libraries(test_rsa ${GMP_LIB})
+
+
+
 # Note: Unlike simpler examples above, test_hello2 directly uses
 # the API provided by the libiwasm library.
+
 add_library (test_hello2 SHARED test_hello2.c)
 target_link_libraries(test_hello2 libiwasm)
 

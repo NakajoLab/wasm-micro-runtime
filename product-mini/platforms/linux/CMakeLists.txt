@@ -141,6 +141,8 @@ include (${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
 
 check_pie_supported()
 add_library(vmlib ${WAMR_RUNTIME_LIB_SOURCE})
+message(STATUS "WAMR_RUNTIME_LIB_SOURCE (1): ${WAMR_RUNTIME_LIB_SOURCE}")
+
 set_target_properties (vmlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_version_info (vmlib)
 

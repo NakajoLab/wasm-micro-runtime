@@ -13,13 +13,20 @@ test_add_wrapper(wasm_exec_env_t exec_env, int x, int y)
 {
     return x + y;
 }
+// my test_code
+static int 
+test_doubling_wrapper(wasm_exec_env_t exec_env, int a)
+{
+    return 2 * a;
+}
 
 /* clang-format off */
 #define REG_NATIVE_FUNC(func_name, signature) \
     { #func_name, func_name##_wrapper, signature, NULL }
 
 static NativeSymbol native_symbols[] = {
-    REG_NATIVE_FUNC(test_add, "(ii)i")
+    REG_NATIVE_FUNC(test_add, "(ii)i"),
+    REG_NATIVE_FUNC(test_doubling, "(i)i"),
 };
 /* clang-format on */
 
@@ -30,3 +37,4 @@ get_native_lib(char **p_module_name, NativeSymbol **p_native_symbols)
     *p_native_symbols = native_symbols;
     return sizeof(native_symbols) / sizeof(NativeSymbol);
 }
+

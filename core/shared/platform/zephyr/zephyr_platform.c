@@ -188,7 +188,10 @@ os_mmap(void *hint, size_t size, int prot, int flags, os_file_handle file)
 
     if ((uint64)size >= UINT32_MAX)
         return NULL;
-
+    #define MY_DEBUG
+    #ifdef MY_DEBUG
+        LOG_WARNING("%s: exec_mem_alloc_func(%p) BH_MALLOC(%p)\n",__func__, exec_mem_alloc_func, BH_MALLOC);
+    #endif
     if (exec_mem_alloc_func)
         addr = exec_mem_alloc_func((uint32)size);
     else

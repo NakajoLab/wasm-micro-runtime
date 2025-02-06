@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 int
 test_add(int x, int y);
 
@@ -17,6 +18,11 @@ test_hello(const char *name, char *buf, size_t buflen);
 
 int
 test_hello2(const char *name, char *buf, size_t buflen);
+
+int 
+test_doubling(int x);
+
+
 
 int
 main(int argc, char **argv)
@@ -66,5 +72,8 @@ main(int argc, char **argv)
     printf("Message from test_hello2: %s", buf);
     free(buf);
 
+
+    res = test_doubling(100);
+    printf("test_doubling : result is %d\n",res);
     return 0;
 }

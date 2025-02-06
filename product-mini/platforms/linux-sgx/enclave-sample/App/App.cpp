@@ -18,6 +18,7 @@
 #include "sgx_urts.h"
 #include "pal_api.h"
 
+
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -448,9 +449,11 @@ instantiate_module(void *wasm_module, uint32_t stack_size, uint32_t heap_size,
     ecall_args[2] = heap_size;
     ecall_args[3] = (uint64_t)(uintptr_t)error_buf;
     ecall_args[4] = error_buf_size;
+    
     if (SGX_SUCCESS
         != ecall_handle_command(g_eid, CMD_INSTANTIATE_MODULE,
                                 (uint8_t *)ecall_args, sizeof(uint64_t) * 5)) {
+        
         printf("Call ecall_handle_command() failed.\n");
         return NULL;
     }
@@ -663,6 +666,8 @@ dump_pgo_prof_data(void *module_inst, const char *path)
 }
 #endif
 
+
+
 int
 main(int argc, char *argv[])
 {
@@ -703,7 +708,6 @@ main(int argc, char *argv[])
         return 0;
     }
 #endif
-
     /* Process options. */
     for (argc--, argv++; argc > 0 && argv[0][0] == '-'; argc--, argv++) {
         if (!strcmp(argv[0], "-f") || !strcmp(argv[0], "--function")) {
@@ -838,8 +842,8 @@ main(int argc, char *argv[])
         printf("%s\n", "set wasi arguments failed.\n");
         goto fail3;
     }
-
-    /* Instantiate module */
+    
+    /* Instantiate module */ 
     if (!(wasm_module_inst =
               instantiate_module(wasm_module, stack_size, heap_size, error_buf,
                                  sizeof(error_buf)))) {
@@ -901,6 +905,7 @@ int
 wamr_pal_create_process(struct wamr_pal_create_process_args *args)
 {
     uint32_t stack_size = 64 * 1024, heap_size = 16 * 1024;
+    
     int log_verbose_level = 2;
     bool is_repl_mode = false;
     const char *dir_list[8] = { NULL };

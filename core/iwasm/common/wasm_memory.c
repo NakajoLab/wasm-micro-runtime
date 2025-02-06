@@ -39,7 +39,21 @@ static void *enlarge_memory_error_user_data;
 #if WASM_MEM_ALLOC_WITH_USER_DATA != 0
 static void *allocator_user_data = NULL;
 #endif
-
+#define MY_DEBUG 
+#ifdef MY_DEBUG
+#if 0
+static void
+my_printf(const char *format, ...)
+{
+    va_list args;
+    char buf[256];
+    va_start(args, format);
+    vsnprintf(buf, sizeof(buf), format, args);
+    va_end(args);
+    ocall_print(buf);
+}
+#endif
+#endif
 static void *(*malloc_func)(
 #if WASM_MEM_ALLOC_WITH_USAGE != 0
     mem_alloc_usage_t usage,
@@ -1252,7 +1266,10 @@ wasm_mremap_linear_memory(void *mapped_mem, uint64 old_size, uint64 new_size,
 
     bh_assert(new_size > 0);
     bh_assert(new_size > old_size);
-
+    
+    #ifdef MY_DEBUG
+        LOG_WARNING("%s: mapped_mem(%p) in %d \n", __func__, mapped_mem, __LINE__);
+    #endif
     if (mapped_mem) {
         new_mem = os_mremap(mapped_mem, old_size, new_size);
     }
@@ -1260,6 +1277,9 @@ wasm_mremap_linear_memory(void *mapped_mem, uint64 old_size, uint64 new_size,
         new_mem = os_mmap(NULL, new_size, MMAP_PROT_NONE, MMAP_MAP_NONE,
                           os_get_invalid_handle());
     }
+    #ifdef MY_DEBUG
+            LOG_WARNING("%s: new_mem(%p) in %d \n", __func__, new_mem, __LINE__);
+    #endif
     if (!new_mem) {
         return NULL;
     }

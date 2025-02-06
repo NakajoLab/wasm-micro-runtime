@@ -24,6 +24,9 @@
 #include <dlfcn.h>
 #endif
 
+#include <time.h>
+
+
 static int app_argc;
 static char **app_argv;
 
@@ -563,6 +566,9 @@ timeout_thread(void *vp)
 int
 main(int argc, char *argv[])
 {
+    
+   
+
     int32 ret = -1;
     char *wasm_file = NULL;
     const char *func_name = NULL;
@@ -570,7 +576,8 @@ main(int argc, char *argv[])
     uint32 wasm_file_size;
     uint32 stack_size = 64 * 1024;
 #if WASM_ENABLE_LIBC_WASI != 0
-    uint32 heap_size = 0;
+// 0から268435456 536870912
+    uint32 heap_size = 536870912;
 #else
     uint32 heap_size = 16 * 1024;
 #endif
@@ -1065,5 +1072,6 @@ fail1:
     /* destroy runtime environment */
     wasm_runtime_destroy();
 
+    
     return ret;
 }

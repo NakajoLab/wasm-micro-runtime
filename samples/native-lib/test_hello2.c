@@ -35,9 +35,8 @@ test_hello2_wrapper(wasm_exec_env_t exec_env, uint32_t nameaddr,
                                            (uint64_t)resultlen)) {
         return -1;
     }
-    const char *name =
-        wasm_runtime_addr_app_to_native(inst, (uint64_t)nameaddr);
-    char *result = wasm_runtime_addr_app_to_native(inst, (uint64_t)resultaddr);
+    const char *name = wasm_runtime_addr_app_to_native(inst, (uint64_t)nameaddr);
+    char *result     = wasm_runtime_addr_app_to_native(inst, (uint64_t)resultaddr);
     return snprintf(result, resultlen,
                     "Hello, %s. This is %s! Your wasm_module_inst_t is %p.\n",
                     name, __func__, inst);
@@ -63,12 +62,12 @@ get_native_lib(char **p_module_name, NativeSymbol **p_native_symbols)
 int
 init_native_lib()
 {
-    printf("%s in test_hello2.c called\n", __func__);
+    //printf("%s in test_hello2.c called\n", __func__);
     return 0;
 }
 
 void
 deinit_native_lib()
 {
-    printf("%s in test_hello2.c called\n", __func__);
+    //printf("%s in test_hello2.c called\n", __func__);
 }
