@@ -4,6 +4,8 @@ project(wasm-app)
 # Emscripten の emcc コマンドをチェック
 find_program(EMCC_EXECUTABLE emcc)
 
+pkg_check_modules(GMP_WASM REQUIRED IMPORTED_TARGET GLOBAL gmp-wasm)
+
 if (NOT EMCC_EXECUTABLE)
     message(FATAL_ERROR "コマンドemccが使用できません.次のコマンドを実行してください.\ncd ~/emsdk\nsource ./emsdk_env.sh\n")
 endif ()
@@ -14,31 +16,25 @@ set(CMAKE_EXECUTABLE_SUFFIX ".wasm")
 
 # Emscripten用のフラグ
 set(CMAKE_C_FLAGS "-s STANDALONE_WASM")
-
-# インクルードディレクトリをターゲットごとに適用
-set(GMP_INCLUDE_DIR "$ENV{HOME}/emscripten-gmp/include")
-set(GMP_LIB_DIR "$ENV{HOME}/emscripten-gmp/lib")
-
-# GMP ライブラリを探す
-
-include_directories(~/emscripten-gmp/include)
-link_directories(~/emscripten-gmp/lib)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --cache /tmp/emcache")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${GMP_WASM_INCLUDE_DIRS}")
+# オプションのリンカフラグを設定
+set(CMAKE_EXE_LINKER_FLAGS "-s STANDALONE_WASM -Wl,--allow-undefined")
 
 # テスト用の実行ファイル
 add_executable(test test.c)
 add_executable(test2 test2.c)
 
-message(STATUS "GMP_LIB_WASM : ${GMP_LIB_WASM}")
-
 # GMP ライブラリをリンク
-target_link_libraries(test ${GMP_LIB_DIR}/libgmp.a)
-target_link_libraries(test2 ${GMP_LIB_DIR}/libgmp.a)
+target_link_libraries(test PkgConfig::GMP_WASM)
+target_link_libraries(test2 PkgConfig::GMP_WASM)
 
-# オプションのリンカフラグを設定
-set(CMAKE_EXE_LINKER_FLAGS "-s STANDALONE_WASM -Wl,--allow-undefined")
+get_property(INCLUDE_DIRS TARGET test PROPERTY INCLUDE_DIRECTORIES)
+message(STATUS "Final include directories: ${INCLUDE_DIRS}")
+
 
 add_custom_target(run
-    DEPENDS test  
+    DEPENDS test iwasm test_rsa test_add test_sqrt test_hello test_hello2
     COMMAND ./iwasm
         --native-lib=./libtest_rsa.so
         --native-lib=./libtest_add.so
@@ -51,7 +47,7 @@ add_custom_target(run
 )
 
 add_custom_target(run2
-    DEPENDS test2  
+    DEPENDS test2 iwasm test_rsa test_add test_sqrt test_hello test_hello2
     COMMAND ./iwasm
         --native-lib=./libtest_rsa.so
         --native-lib=./libtest_add.so

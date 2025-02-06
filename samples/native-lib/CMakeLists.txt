@@ -4,6 +4,9 @@
 cmake_minimum_required(VERSION 3.14)
 
 include(CheckPIESupported)
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(GMP REQUIRED IMPORTED_TARGET gmp)
 
 project(native_lib)
 
@@ -93,20 +96,20 @@ add_library (test_add SHARED test_add.c)
 add_library (test_sqrt SHARED test_sqrt.c)
 add_library (test_hello SHARED test_hello.c)
 
-set(NATIVELIB_DIR "/home/koichi/wasm-micro-runtime/samples/native-lib")
+set(NATIVELIB_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(GMP_INCLUDE_DIR ~/native_gmp/include)
-set(GMP_LIBRARY_DIR ~/native_gmp/lib)
+#set(GMP_INCLUDE_DIR ~/native_gmp/include)
+#set(GMP_LIBRARY_DIR ~/native_gmp/lib)
 
-include_directories(${GMP_INCLUDE_DIR})
-link_directories(${GMP_LIBRARY_DIR})
 
-find_library(GMP_LIB NAMES gmp PATHS ${GMP_LIBRARY_DIR})
-message(STATUS "GMP_LIB : ${GMP_LIB}")
+# find_library(GMP_LIB NAMES gmp PATHS ${GMP_LIBRARY_DIR})
+# message(STATUS "GMP : ${GMP_VERSION}")
 
 add_library(test_rsa SHARED ${NATIVELIB_DIR}/native_gmp.c)
 
-target_link_libraries(test_rsa ${GMP_LIB})
+target_link_libraries(test_rsa PUBLIC PkgConfig::GMP)
+# target_include_directories(test_rsa PUBLIC ${GMP_INCLUDE_DIRS})
+# target_link_directories(test_rsa PUBLIC ${GMP_LIBRARY_DIRS})
 
 
 
