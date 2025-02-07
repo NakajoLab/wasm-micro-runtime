@@ -25,7 +25,7 @@ int
 nmpz_powm(char* _op1_str,  char* _op2_str ,char* _op3_str, char* _rop_str);
 
 //RSA暗号処理部分
-#define MODULUS_SIZE 4096                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
+#define MODULUS_SIZE 1024                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
 #define BLOCK_SIZE (MODULUS_SIZE/8)         /* This is the size of a block that gets en/decrypted at once */
 #define BUFFER_SIZE ((MODULUS_SIZE/8) / 2)  /* This is the number of bytes in n and p */
 
@@ -188,6 +188,11 @@ void generate_keys(private_key* ku, public_key* kp)
     mpz_set(kp->e, ku->e);
     mpz_set(kp->n, ku->n);
 
+    /* メモリの解放 */
+    mpz_clear(phi);
+    mpz_clear(tmp1);
+    mpz_clear(tmp2);
+
     return;
 }
 
@@ -235,6 +240,11 @@ int wrapped_mul_test(){
     mpz_clear(rop);
     return 0;
 }
+double get_time() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);  
+    return ts.tv_sec + ts.tv_nsec / 1e9;  // 秒単位の浮動小数点数に変換
+}
 
 
 int
@@ -256,13 +266,11 @@ RSA_TEST(double *generate_keys_clock, double *block_encrypt_clock, double *block
     mpz_init(ku.d); 
     mpz_init(ku.p); 
     mpz_init(ku.q); 
-
-    clock_t start_clock, end_clock;
    
-    start_clock = clock(); /* 処理開始前のクロックを取得 */
+    double start_time = get_time(); /* 処理開始前のクロックを取得 */
     generate_keys(&ku, &kp);
-    end_clock = clock(); /* 処理終了後のクロックを取得 */
-    *generate_keys_clock=(double)(end_clock - start_clock) / CLOCKS_PER_SEC;
+    double end_time = get_time(); /* 処理終了後のクロックを取得 */
+    *generate_keys_clock = end_time - start_time;
 
     // 0≤M<nの条件に違反するため以下のコードは不可．
     // char buf[6*BLOCK_SIZE]; 
@@ -279,15 +287,15 @@ RSA_TEST(double *generate_keys_clock, double *block_encrypt_clock, double *block
     // mpz_mod(M, M, kp.n);  // M が n より小さくなるようにする
     wrapped_nmpz_mod(M, M, kp.n,2000);
 
-    start_clock = clock();
+    start_time = get_time();
     block_encrypt(C, M, kp);
-    end_clock = clock();
-    *block_encrypt_clock=(double)(end_clock - start_clock) / CLOCKS_PER_SEC;
+    end_time = get_time();
+    *block_encrypt_clock = end_time - start_time;
 
-    start_clock = clock();
+    start_time = get_time();
     block_decrypt(DC, C, ku);
-    end_clock = clock();
-    *block_decrypt_clock=(double)(end_clock - start_clock) / CLOCKS_PER_SEC;
+    end_time = get_time();
+    *block_decrypt_clock = end_time - start_time;
 
     if(mpz_cmp(M,C) == 0){
         fprintf(stderr, "Error: Encryption failed\n");
@@ -299,39 +307,30 @@ RSA_TEST(double *generate_keys_clock, double *block_encrypt_clock, double *block
     // printf("original is [%s]\n", mpz_get_str(NULL, 16, M));
     // printf("decrypted is [%s]\n", mpz_get_str(NULL, 16, DC));
 
+    mpz_clears(M, C, DC, kp.n, kp.e, ku.n, ku.e, ku.d, ku.p, ku.q, NULL);
+
     return 0;
 }
 
 int main(int argc, char **argv){
+int count = COUNT;
+    double generate_keys_clock, block_encrypt_clock, block_decrypt_clock;
+    double generate_keys_clock_sum = 0, block_encrypt_clock_sum = 0, block_decrypt_clock_sum = 0;
 
-    int count = COUNT;
-
-    double generate_keys_clock;
-    double block_encrypt_clock;
-    double block_decrypt_clock;
-
-    double generate_keys_clock_sum=0;
-    double block_encrypt_clock_sum=0;
-    double block_decrypt_clock_sum=0;
-
-    for(int i=0;i<count;i++){
-        RSA_TEST(&generate_keys_clock,&block_encrypt_clock,&block_decrypt_clock);
-        printf("generate_keys_clock %d: %f\n",i,generate_keys_clock);
-        printf("block_encrypt_clock %d: %f\n",i,block_encrypt_clock);
-        printf("block_decrypt_clock %d: %f\n\n",i,block_decrypt_clock);
-        generate_keys_clock_sum+=generate_keys_clock;
-        block_encrypt_clock_sum+=block_encrypt_clock;
-        block_decrypt_clock_sum+=block_decrypt_clock;
+    for (int i = 0; i < count; i++) {
+        RSA_TEST(&generate_keys_clock, &block_encrypt_clock, &block_decrypt_clock);
+        printf("generate_keys_clock %d: %f\n", i, generate_keys_clock);
+        printf("block_encrypt_clock %d: %f\n", i, block_encrypt_clock);
+        printf("block_decrypt_clock %d: %f\n\n", i, block_decrypt_clock);
+        generate_keys_clock_sum += generate_keys_clock;
+        block_encrypt_clock_sum += block_encrypt_clock;
+        block_decrypt_clock_sum += block_decrypt_clock;
     }
 
-    generate_keys_clock = generate_keys_clock_sum/count;
-    block_encrypt_clock = block_encrypt_clock_sum/count;
-    block_decrypt_clock = block_decrypt_clock_sum/count;
-
     printf("----------------------\n");
-    printf("generate_keys_clock AVE: %f\n",generate_keys_clock);
-    printf("block_encrypt_clock AVE: %f\n",block_encrypt_clock);
-    printf("block_decrypt_clock AVE: %f\n",block_decrypt_clock);
+    printf("generate_keys_clock AVE: %f\n", generate_keys_clock_sum / count);
+    printf("block_encrypt_clock AVE: %f\n", block_encrypt_clock_sum / count);
+    printf("block_decrypt_clock AVE: %f\n", block_decrypt_clock_sum / count);
 
     return 0;
 }

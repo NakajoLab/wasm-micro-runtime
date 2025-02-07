@@ -22,7 +22,7 @@
 
 // interpreterでの実装
 
-#define MODULUS_SIZE 1024                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
+#define MODULUS_SIZE 4096                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
 #define BLOCK_SIZE (MODULUS_SIZE/8)         /* This is the size of a block that gets en/decrypted at once */
 #define BUFFER_SIZE ((MODULUS_SIZE/8) / 2)  /* This is the number of bytes in n and p */
 
@@ -127,6 +127,11 @@ void generate_keys(private_key* ku, public_key* kp)
     /* Set public key */
     mpz_set(kp->e, ku->e);
     mpz_set(kp->n, ku->n);
+
+    /* メモリの解放 */
+    mpz_clear(phi);
+    mpz_clear(tmp1);
+    mpz_clear(tmp2);
 
     return;
 }
