@@ -98,20 +98,9 @@ add_library (test_hello SHARED test_hello.c)
 
 set(NATIVELIB_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-#set(GMP_INCLUDE_DIR ~/native_gmp/include)
-#set(GMP_LIBRARY_DIR ~/native_gmp/lib)
-
-
-# find_library(GMP_LIB NAMES gmp PATHS ${GMP_LIBRARY_DIR})
-# message(STATUS "GMP : ${GMP_VERSION}")
-
 add_library(test_rsa SHARED ${NATIVELIB_DIR}/native_gmp.c)
 
 target_link_libraries(test_rsa PUBLIC PkgConfig::GMP)
-# target_include_directories(test_rsa PUBLIC ${GMP_INCLUDE_DIRS})
-# target_link_directories(test_rsa PUBLIC ${GMP_LIBRARY_DIRS})
-
-
 
 # Note: Unlike simpler examples above, test_hello2 directly uses
 # the API provided by the libiwasm library.
