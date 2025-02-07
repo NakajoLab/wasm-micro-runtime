@@ -5,7 +5,7 @@
 #include <time.h>
 #include <gmp.h>
 
-#define COUNT 10
+#define COUNT 100
 // native + interpreterでの実装
 
 
