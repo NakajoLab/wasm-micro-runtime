@@ -1,3 +1,19 @@
+# RSA実行
+make run : インタプリタ
+make run2 : インタプリタ+多倍長演算をGMPネイティブライブラリ
+```
+git clone ...
+git switch hashimoto
+nix develop 
+cd samples/native-lib
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make 
+make run
+make run2
+```
 # WebAssembly Micro Runtime
 
 
