@@ -18,11 +18,11 @@
 #include <time.h>
 #include <gmp.h>
 
-#define COUNT 5
+#define COUNT 30
 
 // interpreterでの実装
 
-#define MODULUS_SIZE 4096                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
+#define MODULUS_SIZE 3072                   /* This is the number of bits we want in the modulus 1024 2048 4096 3072 */
 #define BLOCK_SIZE (MODULUS_SIZE/8)         /* This is the size of a block that gets en/decrypted at once */
 #define BUFFER_SIZE ((MODULUS_SIZE/8) / 2)  /* This is the number of bytes in n and p */
 
