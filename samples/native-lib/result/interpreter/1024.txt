@@ -1,0 +1,137 @@
+[  3%] Built target test_sqrt
+[ 77%] Built target libiwasm
+[ 84%] Built target iwasm
+[ 87%] Built target test_rsa
+[ 90%] Built target test_hello
+[ 93%] Built target test_add
+[ 96%] Built target test_hello2
+[100%] Built target test
+generate_keys_clock 0: 0.430815
+block_encrypt_clock 0: 0.000488
+block_decrypt_clock 0: 0.099302
+
+generate_keys_clock 1: 0.430180
+block_encrypt_clock 1: 0.000490
+block_decrypt_clock 1: 0.101287
+
+generate_keys_clock 2: 0.430791
+block_encrypt_clock 2: 0.000485
+block_decrypt_clock 2: 0.100763
+
+generate_keys_clock 3: 0.420024
+block_encrypt_clock 3: 0.000463
+block_decrypt_clock 3: 0.098585
+
+generate_keys_clock 4: 0.418783
+block_encrypt_clock 4: 0.000462
+block_decrypt_clock 4: 0.098897
+
+generate_keys_clock 5: 0.420251
+block_encrypt_clock 5: 0.000464
+block_decrypt_clock 5: 0.097467
+
+generate_keys_clock 6: 0.420037
+block_encrypt_clock 6: 0.000464
+block_decrypt_clock 6: 0.099573
+
+generate_keys_clock 7: 0.424468
+block_encrypt_clock 7: 0.000464
+block_decrypt_clock 7: 0.097979
+
+generate_keys_clock 8: 0.420078
+block_encrypt_clock 8: 0.000471
+block_decrypt_clock 8: 0.097779
+
+generate_keys_clock 9: 0.416805
+block_encrypt_clock 9: 0.000462
+block_decrypt_clock 9: 0.097645
+
+generate_keys_clock 10: 0.418059
+block_encrypt_clock 10: 0.000474
+block_decrypt_clock 10: 0.099411
+
+generate_keys_clock 11: 0.421006
+block_encrypt_clock 11: 0.000464
+block_decrypt_clock 11: 0.097767
+
+generate_keys_clock 12: 0.420314
+block_encrypt_clock 12: 0.000476
+block_decrypt_clock 12: 0.099338
+
+generate_keys_clock 13: 0.422021
+block_encrypt_clock 13: 0.000464
+block_decrypt_clock 13: 0.097494
+
+generate_keys_clock 14: 0.419072
+block_encrypt_clock 14: 0.000477
+block_decrypt_clock 14: 0.097760
+
+generate_keys_clock 15: 0.417143
+block_encrypt_clock 15: 0.000465
+block_decrypt_clock 15: 0.097715
+
+generate_keys_clock 16: 0.419452
+block_encrypt_clock 16: 0.000476
+block_decrypt_clock 16: 0.097541
+
+generate_keys_clock 17: 0.416769
+block_encrypt_clock 17: 0.000464
+block_decrypt_clock 17: 0.097778
+
+generate_keys_clock 18: 0.420848
+block_encrypt_clock 18: 0.000476
+block_decrypt_clock 18: 0.099442
+
+generate_keys_clock 19: 0.424592
+block_encrypt_clock 19: 0.000474
+block_decrypt_clock 19: 0.099045
+
+generate_keys_clock 20: 0.417595
+block_encrypt_clock 20: 0.000465
+block_decrypt_clock 20: 0.097809
+
+generate_keys_clock 21: 0.417072
+block_encrypt_clock 21: 0.000467
+block_decrypt_clock 21: 0.097612
+
+generate_keys_clock 22: 0.423549
+block_encrypt_clock 22: 0.000473
+block_decrypt_clock 22: 0.099501
+
+generate_keys_clock 23: 0.424511
+block_encrypt_clock 23: 0.000472
+block_decrypt_clock 23: 0.099075
+
+generate_keys_clock 24: 0.416433
+block_encrypt_clock 24: 0.000464
+block_decrypt_clock 24: 0.097862
+
+generate_keys_clock 25: 0.417590
+block_encrypt_clock 25: 0.000465
+block_decrypt_clock 25: 0.097557
+
+generate_keys_clock 26: 0.417250
+block_encrypt_clock 26: 0.000465
+block_decrypt_clock 26: 0.097601
+
+generate_keys_clock 27: 0.424072
+block_encrypt_clock 27: 0.000475
+block_decrypt_clock 27: 0.099378
+
+generate_keys_clock 28: 0.418550
+block_encrypt_clock 28: 0.000464
+block_decrypt_clock 28: 0.097925
+
+generate_keys_clock 29: 0.417957
+block_encrypt_clock 29: 0.000464
+block_decrypt_clock 29: 0.097451
+
+----------------------
+generate_keys_clock AVE: 0.420870
+block_encrypt_clock AVE: 0.000470
+block_decrypt_clock AVE: 0.098478
+[00:46:23:418 - 7FFFF7E56780]: wasm_mremap_linear_memory: mapped_mem((nil)) in 1271 
+
+[00:46:23:418 - 7FFFF7E56780]: wasm_mremap_linear_memory: new_mem(0x7ffdf7800000) in 1281 
+
+[100%] Built target run

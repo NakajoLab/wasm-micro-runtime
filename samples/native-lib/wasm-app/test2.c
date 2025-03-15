@@ -8,7 +8,6 @@
 #define COUNT 30
 // native + interpreterでの実装
 
-
 int
 nmpz_nextprime( char* _op_str, char* _rop_str);
 int
@@ -24,8 +23,12 @@ nmpz_gcd(char* _op1_str,  char* _op2_str , char* _rop_str);
 int
 nmpz_powm(char* _op1_str,  char* _op2_str ,char* _op3_str, char* _rop_str);
 
+//ネイティブライブラリ呼び出しのオーバーヘッド測定用
+int
+nmpz_tmp();
+
 //RSA暗号処理部分
-#define MODULUS_SIZE 3072                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
+#define MODULUS_SIZE 1024                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
 #define BLOCK_SIZE (MODULUS_SIZE/8)         /* This is the size of a block that gets en/decrypted at once */
 #define BUFFER_SIZE ((MODULUS_SIZE/8) / 2)  /* This is the number of bytes in n and p */
 
@@ -312,7 +315,7 @@ RSA_TEST(double *generate_keys_clock, double *block_encrypt_clock, double *block
     return 0;
 }
 
-int main(int argc, char **argv){
+int _main(int argc, char **argv){
 int count = COUNT;
     double generate_keys_clock, block_encrypt_clock, block_decrypt_clock;
     double generate_keys_clock_sum = 0, block_encrypt_clock_sum = 0, block_decrypt_clock_sum = 0;
@@ -331,6 +334,24 @@ int count = COUNT;
     printf("generate_keys_clock AVE: %f\n", generate_keys_clock_sum / count);
     printf("block_encrypt_clock AVE: %f\n", block_encrypt_clock_sum / count);
     printf("block_decrypt_clock AVE: %f\n", block_decrypt_clock_sum / count);
+
+    return 0;
+}
+
+//ネイティブコード呼び出しあり
+int main(void){
+    const int N = 10000000;
+    double start_time, end_time, result_time;
+
+    start_time = get_time();
+    for (volatile int i = 0; i < N; i++){
+        nmpz_tmp();
+    }
+    end_time = get_time();
+
+    result_time = end_time - start_time;
+
+    printf("result_time : %f\n",  result_time);
 
     return 0;
 }

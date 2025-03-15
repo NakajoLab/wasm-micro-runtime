@@ -39,13 +39,19 @@ typedef struct {
     mpz_t q; /* Starting prime q */
 } private_key;
 
+// 指定された文字配列（char* arr）を 16 進数形式で出力
+//char* arr: 表示したい文字配列（バイト列）へのポインタ。
+//int len: 配列の長さ、表示するバイト数。
 void print_hex(char* arr, int len)
 {
     int i;
-    for(i = 0; i < len; i++)
+    for(i = 0; i < len; i++){
         printf("%02x", (unsigned char) arr[i]); 
+    }
+        
 }
 
+//鍵生成
 /* NOTE: Assumes mpz_t's are initted in ku and kp */
 void generate_keys(private_key* ku, public_key* kp)
 {
@@ -137,6 +143,8 @@ void block_encrypt(mpz_t C, mpz_t M, public_key kp)
 
 int encrypt(char cipher[], char message[], int length, public_key kp)
 {
+    //PKCS#1 v1.5 パディング でブロックごとに暗号化
+    //PS 部分にランダムな非ゼロバイトを挿入
     /* Its probably overkill, but I implemented PKCS#1v1.5 paging
      * Encoded message block is of the form:
      * EMB = 00 || 02 || PS || 00 || D
@@ -271,8 +279,9 @@ int main_rsa()
     // printf("ku.q is [%s]\n", mpz_get_str(NULL, 16, ku.q));
 
     char buf[6*BLOCK_SIZE]; 
-    for(i = 0; i < 6*BLOCK_SIZE; i++)
+    for(i = 0; i < 6*BLOCK_SIZE; i++){
         buf[i] = rand() % 0xFF;
+    }
 
     mpz_import(M, (6*BLOCK_SIZE), 1, sizeof(buf[0]), 0, 0, buf);
     // printf("original is [%s]\n", mpz_get_str(NULL, 16, M)); 
@@ -289,6 +298,8 @@ test_rsa_wrapper(wasm_exec_env_t exec_env)
     main_rsa();
     return 0;
 }
+
+
 
 /* clang-format off */
 #define REG_NATIVE_FUNC(func_name, signature) \

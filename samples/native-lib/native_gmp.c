@@ -202,6 +202,11 @@ nmpz_powm_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, uint32_t op2
     
     return 0;  
 }
+
+static int nmpz_tmp_wrapper(){
+    return 0;
+}
+
 /* clang-format off */
 #define REG_NATIVE_FUNC(func_name, signature) \
     { #func_name, func_name##_wrapper, signature, NULL }
@@ -214,6 +219,7 @@ static NativeSymbol native_symbols[] = {
     REG_NATIVE_FUNC(nmpz_invert,"(iii)i"),
     REG_NATIVE_FUNC(nmpz_gcd,"(iii)i"),
     REG_NATIVE_FUNC(nmpz_powm,"(iiii)i"),
+    REG_NATIVE_FUNC(nmpz_tmp,"()i"),
 };
 /* clang-format on */
 
