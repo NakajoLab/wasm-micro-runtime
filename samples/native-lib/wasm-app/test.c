@@ -244,16 +244,24 @@ int _main(int argc, char **argv){
     return 0;
 }
 
+int test_add(int op1, int op2){
+    return op1 + op2;
+}
 //ネイティブコード呼び出しなし
 int main(void){
-    const int N = 10000000;
+    const int N = 10000;
     double start_time, end_time, result_time;
+    int res=0;
+    int a = 100, b= 200;
 
     start_time = get_time();
-    for (volatile int i = 0; i < N; i++);
+    for (volatile int i = 0; i < N; i++){
+        res = test_add(a,b);
+    }
     end_time = get_time();
     result_time = end_time - start_time;
 
+    printf("res is %d\n",res);
     printf("result_time : %f\n",  result_time);
 
     return 0;

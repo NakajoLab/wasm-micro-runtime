@@ -24,8 +24,8 @@ int
 nmpz_powm(char* _op1_str,  char* _op2_str ,char* _op3_str, char* _rop_str);
 
 //ネイティブライブラリ呼び出しのオーバーヘッド測定用
-int
-nmpz_tmp();
+int test_tmp();
+int test_add(int op1, int op2);
 
 //RSA暗号処理部分
 #define MODULUS_SIZE 1024                   /* This is the number of bits we want in the modulus 1024 2048 4096 8192 */
@@ -250,8 +250,7 @@ double get_time() {
 }
 
 
-int
-RSA_TEST(double *generate_keys_clock, double *block_encrypt_clock, double *block_decrypt_clock)
+int RSA_TEST(double *generate_keys_clock, double *block_encrypt_clock, double *block_decrypt_clock)
 {
     int i;
     mpz_t M;  mpz_init(M);
@@ -315,6 +314,7 @@ RSA_TEST(double *generate_keys_clock, double *block_encrypt_clock, double *block
     return 0;
 }
 
+//RSA測定
 int _main(int argc, char **argv){
 int count = COUNT;
     double generate_keys_clock, block_encrypt_clock, block_decrypt_clock;
@@ -338,21 +338,32 @@ int count = COUNT;
     return 0;
 }
 
-//ネイティブコード呼び出しあり
-int main(void){
-    const int N = 10000000;
+double test(int N){
     double start_time, end_time, result_time;
+    int res=0;
+    int a = rand();
+    int b = rand();
 
     start_time = get_time();
     for (volatile int i = 0; i < N; i++){
-        nmpz_tmp();
+        res = test_add(a,b); 
     }
     end_time = get_time();
 
     result_time = end_time - start_time;
+    return result_time;
+}
 
-    printf("result_time : %f\n",  result_time);
-
+//ネイティブコード呼び出しあり
+int main(void){
+    srand(time(NULL));
+    for(int i=1; i<=100; i++){
+        double res =  test(i*1000);
+        printf("result %d : %f\n", i*1000, res);
+    }
+    
+    //printf("res is %d\n",res);
+    //printf("result_time : %f\n",  result_time);
     return 0;
 }
 
