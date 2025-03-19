@@ -24,10 +24,12 @@ set(CMAKE_EXE_LINKER_FLAGS "-s STANDALONE_WASM -Wl,--allow-undefined")
 # テスト用の実行ファイル
 add_executable(test test.c)
 add_executable(test2 test2.c)
+add_executable(add add.c)
 
 # GMP ライブラリをリンク
 target_link_libraries(test PkgConfig::GMP_WASM)
 target_link_libraries(test2 PkgConfig::GMP_WASM)
+target_link_libraries(add PkgConfig::GMP_WASM)
 
 get_property(INCLUDE_DIRS TARGET test PROPERTY INCLUDE_DIRECTORIES)
 message(STATUS "Final include directories: ${INCLUDE_DIRS}")
@@ -58,6 +60,21 @@ add_custom_target(run2
         --stack-size=262144 --heap-size=268435456
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
+
+add_custom_target(run3
+    DEPENDS add iwasm test_rsa test_add test_sqrt test_hello test_hello2
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        --native-lib=./libtest_add.so
+        --native-lib=./libtest_sqrt.so
+        --native-lib=./libtest_hello.so
+        --native-lib=./libtest_hello2.so
+        wasm-app/add.wasm
+        --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+
 
 #メモ
 # エクスポート設定
