@@ -577,7 +577,7 @@ main(int argc, char *argv[])
     uint32 stack_size = 64 * 1024;
 #if WASM_ENABLE_LIBC_WASI != 0
 // 0から268435456 536870912
-    uint32 heap_size = 536870912;
+    uint32 heap_size = 64*1024*1024;
 #else
     uint32 heap_size = 16 * 1024;
 #endif

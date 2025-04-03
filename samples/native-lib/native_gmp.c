@@ -202,6 +202,32 @@ nmpz_powm_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, uint32_t op2
     
     return 0;  
 }
+static int
+nmpz_add_wrapper(wasm_exec_env_t exec_env,  uint32_t num1_str_addr, uint32_t num2_str_addr , uint32_t result_str_addr)
+{
+    mpz_t num1, num2, result;
+    mpz_init(num1);  // mpz_t型の変数を初期化
+    mpz_init(num2);
+    mpz_init(result);
+
+    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+    char *num1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num1_str_addr);
+    char *num2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num2_str_addr);
+    char *result_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)result_str_addr);
+
+    // 文字列として渡された数値をmpz_t型に変換
+    mpz_set_str(num1, num1_str, 10);  // 10は10進数
+    mpz_set_str(num2, num2_str, 10);
+    // 掛け算を実行
+    mpz_add(result, num1, num2);
+    // 結果を文字列に変換
+    mpz_get_str(result_str, 10, result);  // 10進数で結果を文字列として取得
+    // 使用が終わったmpz_t型の変数を解放
+    mpz_clear(num1);
+    mpz_clear(num2);
+    mpz_clear(result);
+    return 0;
+}
 
 //何もしない
 static int test_tmp_wrapper(){
@@ -224,6 +250,8 @@ static NativeSymbol native_symbols[] = {
     REG_NATIVE_FUNC(nmpz_invert,"(iii)i"),
     REG_NATIVE_FUNC(nmpz_gcd,"(iii)i"),
     REG_NATIVE_FUNC(nmpz_powm,"(iiii)i"),
+    REG_NATIVE_FUNC(nmpz_add, "(iii)i"),
+
     REG_NATIVE_FUNC(test_tmp,"()i"),
     REG_NATIVE_FUNC(native_add,"(ii)i"),
 

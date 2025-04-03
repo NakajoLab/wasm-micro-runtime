@@ -15,79 +15,90 @@ set(CMAKE_C_COMPILER "${EMCC_EXECUTABLE}")
 set(CMAKE_EXECUTABLE_SUFFIX ".wasm")
 
 # Emscripten用のフラグ
-set(CMAKE_C_FLAGS "-s STANDALONE_WASM")
+# set(CMAKE_C_FLAGS "-s STANDALONE_WASM")
+set(CMAKE_C_FLAGS "-s STANDALONE_WASM -O3 -fomit-frame-pointer")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --cache /tmp/emcache")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${GMP_WASM_INCLUDE_DIRS}")
 # オプションのリンカフラグを設定
 set(CMAKE_EXE_LINKER_FLAGS "-s STANDALONE_WASM -Wl,--allow-undefined")
 
 # テスト用の実行ファイル
-add_executable(test test.c)
-add_executable(test2 test2.c)
-add_executable(add add.c)
+# add_executable(test test.c)
+# add_executable(test2 test2.c)
+add_executable(multiply multiply.c)
+add_executable(multiply_native multiply_native.c)
+add_executable(divide divide.c)
+add_executable(rsa rsa.c)
+add_executable(rsa_native rsa_native.c)
+
+target_compile_options(multiply PRIVATE -o multiply)
+target_compile_options(multiply_native PRIVATE -o multiply_native)
+target_compile_options(divide PRIVATE -o divide)
+target_compile_options(rsa PRIVATE -o rsa)
+target_compile_options(rsa_native PRIVATE -o rsa_native)
 
 # GMP ライブラリをリンク
-target_link_libraries(test PkgConfig::GMP_WASM)
-target_link_libraries(test2 PkgConfig::GMP_WASM)
-target_link_libraries(add PkgConfig::GMP_WASM)
+target_link_libraries(multiply PkgConfig::GMP_WASM)
+target_link_libraries(multiply_native PkgConfig::GMP_WASM)
+target_link_libraries(divide PkgConfig::GMP_WASM)
+target_link_libraries(rsa PkgConfig::GMP_WASM)
+target_link_libraries(rsa_native PkgConfig::GMP_WASM)
 
-get_property(INCLUDE_DIRS TARGET test PROPERTY INCLUDE_DIRECTORIES)
+get_property(INCLUDE_DIRS TARGET multiply PROPERTY INCLUDE_DIRECTORIES)
 message(STATUS "Final include directories: ${INCLUDE_DIRS}")
 
-
+# インタプリタ
 add_custom_target(run
-    DEPENDS test iwasm test_rsa test_add test_sqrt test_hello test_hello2
+    DEPENDS  rsa iwasm test_rsa test_add test_sqrt test_hello test_hello2
     COMMAND ./iwasm
         --native-lib=./libtest_rsa.so
         --native-lib=./libtest_add.so
         --native-lib=./libtest_sqrt.so
         --native-lib=./libtest_hello.so
         --native-lib=./libtest_hello2.so
-        wasm-app/test.wasm
+        wasm-app/rsa.wasm
         --stack-size=262144 --heap-size=268435456
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-
+# インタプリタ＋ネイティブ
 add_custom_target(run2
-    DEPENDS test2 iwasm test_rsa test_add test_sqrt test_hello test_hello2
+    DEPENDS  rsa_native iwasm test_rsa test_add test_sqrt test_hello test_hello2
     COMMAND ./iwasm
         --native-lib=./libtest_rsa.so
         --native-lib=./libtest_add.so
         --native-lib=./libtest_sqrt.so
         --native-lib=./libtest_hello.so
         --native-lib=./libtest_hello2.so
-        wasm-app/test2.wasm
+        wasm-app/rsa_native.wasm
         --stack-size=262144 --heap-size=268435456
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-
-add_custom_target(run3
-    DEPENDS add iwasm test_rsa test_add test_sqrt test_hello test_hello2
+# 積 インタプリタ
+add_custom_target(mul
+    DEPENDS  multiply iwasm test_rsa test_add test_sqrt test_hello test_hello2
     COMMAND ./iwasm
         --native-lib=./libtest_rsa.so
         --native-lib=./libtest_add.so
         --native-lib=./libtest_sqrt.so
         --native-lib=./libtest_hello.so
         --native-lib=./libtest_hello2.so
-        wasm-app/add.wasm
+        wasm-app/multiply.wasm
         --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+# 積　インタプリタ＋ネイティブ
+add_custom_target(mul2
+    DEPENDS  multiply_native iwasm test_rsa test_add test_sqrt test_hello test_hello2
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        --native-lib=./libtest_add.so
+        --native-lib=./libtest_sqrt.so
+        --native-lib=./libtest_hello.so
+        --native-lib=./libtest_hello2.so
+        wasm-app/multiply_native.wasm
+        --stack-size=8*1024*1024 --heap-size=64*1024*1024
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 
 
-#メモ
-# エクスポート設定
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--export=main")
-
-# -Wl,--max-memory=131072 -z stack-size=8192がデフォルト 131072=128KB, 8192=8KB
-# 268435456byte=256MB,131072byte=128KB に変更
-# set (CMAKE_EXE_LINKER_FLAGS
-#     "-Wl,--max-memory=268435456 -z stack-size=131072   \
-#      -Wl,--no-entry,--strip-all                   \
-#      -Wl,--export=__main_argc_argv                \
-#      -Wl,--export=__heap_base,--export=__data_end \
-#      -Wl,--allow-undefined"
-# )
-
-# set(NATIVELIB_DIR "/home/koichi/wasm-micro-runtime/samples/native-lib")

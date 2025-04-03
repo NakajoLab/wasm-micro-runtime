@@ -89,7 +89,6 @@ int wrapped_nmpz_sub_ui(mpz_t rop,mpz_t op1,unsigned long int op2, unsigned int 
 
     return 0;
 };
-
 int wrapped_nmpz_invert(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
     char *tmp_rop = malloc(buf);
     int res;
