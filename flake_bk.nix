@@ -3,20 +3,28 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    systems.url = "github:nix-systems/default";
     treefmt-nix = {
-    url = "github:numtide/treefmt-nix";
-    inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs ={ self, nixpkgs, treefmt-nix, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      systems,
+      treefmt-nix,
+    }:
     let
-  systems = [ "x86_64-linux" "aarch64-linux" ];  # 必要なアーキテクチャを追加
-  eachSystem = nixpkgs.lib.genAttrs systems;
-  pkgsFor = system: import nixpkgs {
-    inherit system;
-    overlays = [ self.overlays.default ];
-  };
+      eachSystem = nixpkgs.lib.genAttrs (import systems);
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          overlays = [ self.overlays.default ];
+        };
     in
     {
       overlays.default = final: prev: {

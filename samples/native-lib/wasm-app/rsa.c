@@ -47,7 +47,7 @@ main (int argc, char *argv[])
   //   n = atoi (argv[1]);
   
   // 512 1024 2048
-  n = 2048;
+  n = 512;
 
   gmp_randinit_default (rs);
   mpz_init (p);
