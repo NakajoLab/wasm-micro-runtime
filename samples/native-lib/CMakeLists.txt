@@ -115,4 +115,4 @@ add_library (test_hello2 SHARED test_hello2.c)
 target_link_libraries(test_hello2 libiwasm)
 
 ################ wasm application ###############
-add_subdirectory(wasm-app)
+# add_subdirectory(wasm-app)
