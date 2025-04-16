@@ -101,20 +101,20 @@ LINK_SEARCH_END_STATIC ON)
 target_link_libraries(iwasm libiwasm -static -pthread -lm -ldl )
 
 ################ native libraries ###############
-add_library (test_add STATIC test_add.c)
-add_library (test_sqrt STATIC test_sqrt.c)
-add_library (test_hello STATIC test_hello.c)
+add_library (test_add SHARED test_add.c)
+add_library (test_sqrt SHARED test_sqrt.c)
+add_library (test_hello SHARED test_hello.c)
 
 set(NATIVELIB_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(test_rsa STATIC ${NATIVELIB_DIR}/native_gmp.c)
+add_library(test_rsa SHARED ${NATIVELIB_DIR}/native_gmp.c)
 
 target_link_libraries(test_rsa PUBLIC PkgConfig::GMP_ARM)
 
 # Note: Unlike simpler examples above, test_hello2 directly uses
 # the API provided by the libiwasm library.
 
-add_library (test_hello2 STATIC test_hello2.c)
+add_library (test_hello2 SHARED test_hello2.c)
 target_link_libraries(test_hello2 libiwasm)
 
 ################ wasm application ###############
