@@ -2,20 +2,20 @@
 
 Copyright 2003 Free Software Foundation, Inc.
 
-This file is part of GMPbench.
+This file is part of the GNU GMPbench.
 
-GMPbench is free software; you can redistribute it and/or modify it under the
-terms of the GNU General Public License as published by the Free Software
-Foundation; either version 3 of the License, or (at your option) any later
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
 version.
 
-GMPbench is distributed in the hope that it will be useful, but WITHOUT ANY
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
-GMPbench.  If not, see http://www.gnu.org/licenses/.  */
-
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,7 +24,6 @@ GMPbench.  If not, see http://www.gnu.org/licenses/.  */
 
 #define RSA_EXP 0x10001
 
-#define BUF 2000
 int
 nmpz_nextprime( char* _op_str, char* _rop_str);
 int
@@ -115,7 +114,6 @@ int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2, unsigned int buf){
     return 0;
 }
 
-
 int cputime (void);
 void rsa_sign (mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t);
 
@@ -128,17 +126,17 @@ main (int argc, char *argv[])
   double t, f, ops_per_sec;
   int decimals;
 
-//   if (argc != 2)
-//     {
-//       fprintf (stderr, "usage: %s n\n", argv[0]);
-//       fprintf (stderr, "  where n is number of bits in numbers tested\n");
-//       return -1;
-//     }
+  // if (argc != 2)
+  //   {
+  //     fprintf (stderr, "usage: %s n\n", argv[0]);
+  //     fprintf (stderr, "  where n is number of bits in numbers tested\n");
+  //     return -1;
+  //   }
 
-//   if (argc == 2)
-//     n = atoi (argv[1]);
-     
-// 512 1024 2048
+  // if (argc == 2)
+  //   n = atoi (argv[1]);
+  
+//   512 1024 2048
   n = 2048;
 
   gmp_randinit_default (rs);
@@ -148,39 +146,20 @@ main (int argc, char *argv[])
 
   printf ("Generating p, q, d..."); fflush (stdout);
 
-#if 0
   mpz_urandomb (p, rs, n/2);
   mpz_setbit (p, n / 2 - 1);
   mpz_setbit (p, n / 2 - 2);
 //   mpz_nextprime (p, p);
-  wrapped_nmpz_nextprime(p, p, BUF);
+  wrapped_nmpz_nextprime(p, p,2000);
 
   mpz_urandomb (q, rs, n/2);
   mpz_setbit (q, n / 2 - 1);
   mpz_setbit (q, n / 2 - 2);
 //   mpz_nextprime (q, q);
-  wrapped_nmpz_nextprime(q, q, BUF);
-#else
-  do
-    {
-      mpz_urandomb (p, rs, n/2);
-      mpz_setbit (p, n / 2 - 1);
-      mpz_setbit (p, n / 2 - 2);
-      mpz_setbit (p, 0);
-
-      mpz_urandomb (q, rs, n/2);
-      mpz_setbit (q, n / 2 - 1);
-      mpz_setbit (q, n / 2 - 2);
-      mpz_setbit (q, 0);
-
-    //   mpz_gcd (pq, p, q);
-      wrapped_nmpz_gcd(pq, p, q, BUF);
-    }
-  while (mpz_cmp_ui (pq, 1) != 0);
-#endif
+  wrapped_nmpz_nextprime(q, q, 2000);
 
 //   mpz_mul (pq, p, q);
-  wrapped_nmpz_mul(pq, p, q, BUF);
+  wrapped_nmpz_mul(pq, p, q, 2000);
 
   mpz_init_set_ui (e, RSA_EXP);
   mpz_init (d);
@@ -189,16 +168,16 @@ main (int argc, char *argv[])
   mpz_init (phi);
 
 //   mpz_sub_ui (pm1, p, 1);
-  wrapped_nmpz_sub_ui(pm1, p, 1, BUF);
+  wrapped_nmpz_sub_ui(pm1, p, 1, 2000);
 //   mpz_sub_ui (qm1, q, 1);
-  wrapped_nmpz_sub_ui(qm1, q, 1, BUF);
+  wrapped_nmpz_sub_ui(qm1, q, 1, 2000);
 //   mpz_mul (phi, pm1, qm1);
-  wrapped_nmpz_mul(phi, pm1, qm1, BUF);
+  wrapped_nmpz_mul(phi, pm1, qm1, 2000);
 //   if (mpz_invert (d, e, phi) == 0)
 //     abort ();
- if (wrapped_nmpz_invert (d, e, phi,BUF) == 0){
+if(wrapped_nmpz_invert(d, e, phi, 2000)== 0){
     abort ();
- }
+}
 
   printf ("done; pq is %d bits\n", (int) mpz_sizeinbase (pq, 2));
 
@@ -207,17 +186,16 @@ main (int argc, char *argv[])
   mpz_init (p_i_q);
 //   if (mpz_invert (p_i_q, p, q) == 0)
 //     abort ();
-  if (wrapped_nmpz_invert (p_i_q, p, q,BUF) == 0){
+if(wrapped_nmpz_invert(p_i_q, p, q, 2000)== 0){
     abort ();
-  }
-   
+}
 
   mpz_init (dp);
   mpz_init (dq);
 //   mpz_mod (dp, d, pm1);
-  wrapped_nmpz_mod(dp,d,pm1,BUF);
+  wrapped_nmpz_mod(dp, d, pm1, 2000);
 //   mpz_mod (dq, d, qm1);
-  wrapped_nmpz_mod(dq,d,qm1,BUF);
+  wrapped_nmpz_mod(dq, d, qm1, 2000);
 
   printf ("Generating random messages\n");
 
@@ -233,8 +211,6 @@ main (int argc, char *argv[])
   printf ("done\n");
 
   niter = (unsigned long) (1e4 / t);
-  if (niter == 0)
-    niter = 1;
   printf ("Signing random messages %lu times...", niter);  fflush (stdout);
   t0 = cputime ();
   for (i = niter; i > 0; i--)
@@ -271,23 +247,23 @@ rsa_sign (mpz_t smsg,
   mpz_init (o);
 
 //   mpz_powm (pr, msg, dp, p);
-  wrapped_nmpz_powm(pr, msg, dp, p, BUF);
+  wrapped_nmpz_powm(pr, msg, dp, p, 2000);
 //   mpz_powm (qr, msg, dq, q);
-  wrapped_nmpz_powm(qr, msg, dq, q, BUF);
+  wrapped_nmpz_powm(qr, msg, dq, q, 2000);
 
   mpz_sub (qr_m_pr, qr, pr);
 
 //   mpz_mul (t, qr_m_pr, p_i_q);
-  wrapped_nmpz_mul(t, qr_m_pr, p_i_q, BUF);
+wrapped_nmpz_mul(t, qr_m_pr, p_i_q, 2000);
 //   mpz_mod (o, t, q);		/* slow mod */
-  wrapped_nmpz_mod(o, t, q, BUF);
+wrapped_nmpz_mod(o, t, q, 2000);
 
 //   mpz_mul (t, o, p);
-  wrapped_nmpz_mul(t, o, p, BUF);
+wrapped_nmpz_mul(t, o, p, 2000);
 //   mpz_add (smsg, pr, t);
-  wrapped_nmpz_add(smsg, pr, t, BUF);
+  wrapped_nmpz_add(smsg, pr, t, 2000);
 //   mpz_mod (smsg, smsg, pq);	/* fast mod */
-  wrapped_nmpz_mod(smsg, smsg, pq, BUF);
+  wrapped_nmpz_mod(smsg, smsg, pq, 2000);
 
   mpz_clear (o);
   mpz_clear (t);
@@ -313,11 +289,12 @@ cputime ()
 #include <sys/resource.h>
 
 #include <time.h>
+
 int cputime() {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
-    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
-  }
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
+  return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
 
 // int
 // cputime ()

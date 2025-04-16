@@ -6,28 +6,39 @@ This file is part of GMPbench.
 
 GMPbench is free software; you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2.1 of the License, or (at your option) any later
+Foundation; either version 3 of the License, or (at your option) any later
 version.
 
-The GMPbench is distributed in the hope that it will be useful, but WITHOUT ANY
+GMPbench is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
-the GMPbench; see the file COPYING.  If not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+GMPbench.  If not, see http://www.gnu.org/licenses/.  */
+
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
 #include "timing.h"
 
-int
-cputime(void);
+int cputime (void);
 
-// multiply_args="128,128 512,512 8192,8192 131072,131072 2097152,2097152"
-#define N 2097152
+// 自分自身との乗算 multiply_args="128 512 8192 131072 2097152 "
+// 異なる2つの数 multiply_args="128,128 512,512 8192,8192 131072,131072 2097152,2097152 15000,10000 20000,10000 30000,10000 16777216,512 16777216,262144"
+// #define TWO
+// #define X 128
+#define THREE
+#define Y 16777216
+#define Z 262144
 
+#ifdef TWO
+#define BUF 2000
+#endif
+#ifdef THREE
+#define BUF 12000000
+// #define BUF 12000000
+#endif
 int
 nmpz_mul(char *_num1_str, char *_num2_str, char *_result_str);
 int
@@ -43,73 +54,99 @@ wrapped_nmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2, unsigned int buf)
 }
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
-    gmp_randstate_t rs;
-    mpz_t x, y, z;
-    unsigned long int m, n, i, niter, t0, ti;
-    double t, f, ops_per_sec;
-    int decimals;
+  gmp_randstate_t rs;
+  mpz_t x, y, z;
+  mpz_ptr xptr, yptr;
+  unsigned long int m, n, i, niter, t0, ti;
+  double t, f, ops_per_sec;
+  int decimals;
 
-    // if (argc != 3)
-    //   {
-    //     fprintf (stderr, "usage: %s m n\n", argv[0]);
-    //     fprintf (stderr, "  where m and n are number of bits in numbers
-    //     tested\n"); return -1;
-    //   }
+  gmp_randinit_default (rs);
 
-    // m = atoi (argv[1]);
-    // n = atoi (argv[2]);
-    m = N;
-    n = N;
+  mpz_init (x);
+  mpz_init (y);
+  mpz_init (z);
 
-    gmp_randinit_default(rs);
+#ifdef TWO
+    m = X;
+      mpz_urandomb (x, rs, m);
+      xptr = x;
+      yptr = x;
+#endif
+#ifdef THREE
+    m = Y;
+    n = Z;
+    mpz_urandomb (x, rs, m);
+    mpz_urandomb (y, rs, n);
+    xptr = x;
+    yptr = y;
+#endif
+//   if (argc == 2)
+//     {
+//       m = atoi (argv[1]);
+//       mpz_urandomb (x, rs, m);
+//       xptr = x;
+//       yptr = x;
+//     }
+//   else if (argc == 3)
+//     {
+//       m = atoi (argv[1]);
+//       n = atoi (argv[2]);
+//       mpz_urandomb (x, rs, m);
+//       mpz_urandomb (y, rs, n);
+//       xptr = x;
+//       yptr = y;
+//     }
+//   else
+//     {
+//       fprintf (stderr, "usage: %s m n\n", argv[0]);
+//       fprintf (stderr, "  where m and n are number of bits in numbers tested\n");
+//       return -1;
+//     }
 
-    mpz_init(x);
-    mpz_init(y);
-    mpz_init(z);
-    mpz_urandomb(x, rs, m);
-    mpz_urandomb(y, rs, n);
+  printf ("Calibrating CPU speed...");  fflush (stdout);
+  TIME (t, wrapped_nmpz_mul (z, xptr, yptr,BUF));
+  printf ("done\n");
 
-    printf("Calibrating CPU speed...");
-    fflush(stdout);
-    TIME(t, mpz_mul(z, x, y));
-    printf("done\n");
-
-    niter = 1 + (unsigned long)(1e2 / t);
-    printf("Multiplying %lu-bit number with %lu-bit number %lu times...", m, n,
-           niter);
-    fflush(stdout);
-    t0 = cputime();
-    for (i = niter; i > 0; i--) {
-        //   mpz_mul (z, x, y);
-        wrapped_nmpz_mul(z, x, y, 2000);
+  niter = 1 + (unsigned long) (1e4 / t);
+  if (argc == 2)
+    printf ("Squaring a %lu-bit number %lu times...", m, niter);
+  else
+    printf ("Multiplying %lu-bit number with %lu-bit number %lu times...", m, n, niter);
+  fflush (stdout);
+  t0 = cputime ();
+  for (i = niter; i > 0; i--)
+    {
+        wrapped_nmpz_mul (z, xptr, yptr,BUF);
     }
-    ti = cputime() - t0;
-    printf("done!\n");
+  ti = cputime () - t0;
+  printf ("done!\n");
 
-    ops_per_sec = 1000.0 * niter / ti;
-    f = 100.0;
-    for (decimals = 0;; decimals++) {
-        if (ops_per_sec > f)
-            break;
-        f = f * 0.1;
+  ops_per_sec = 1000.0 * niter / ti;
+  f = 100.0;
+  for (decimals = 0;; decimals++)
+    {
+      if (ops_per_sec > f)
+	break;
+      f = f * 0.1;
     }
 
-    printf("RESULT: %.*f operations per second\n", decimals, ops_per_sec);
-    return 0;
+  printf ("RESULT: %.*f operations per second\n", decimals, ops_per_sec);
+  return 0;
 }
 
 /* Return user CPU time measured in milliseconds.  */
-#if !defined(__sun)                                         \
-    && (defined(USG) || defined(__SVR4) || defined(_UNICOS) \
-        || defined(__hpux))
+#if !defined (__sun) \
+    && (defined (USG) || defined (__SVR4) || defined (_UNICOS) \
+	|| defined (__hpux))
 #include <time.h>
 
 int
-cputime()
+cputime ()
 {
-    return (int)((double)clock() * 1000 / CLOCKS_PER_SEC);
+  return (int) ((double) clock () * 1000 / CLOCKS_PER_SEC);
 }
 #else
 #include <sys/types.h>
@@ -118,14 +155,11 @@ cputime()
 
 #include <time.h>
 
-int
-cputime()
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
-    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+int cputime() {
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
+  return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
-
 // int
 // cputime ()
 // {

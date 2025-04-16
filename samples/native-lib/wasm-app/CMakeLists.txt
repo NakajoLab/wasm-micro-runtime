@@ -20,7 +20,8 @@ set(CMAKE_C_FLAGS "-s STANDALONE_WASM -O3 -fomit-frame-pointer")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --cache /tmp/emcache")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${GMP_WASM_INCLUDE_DIRS}")
 # オプションのリンカフラグを設定
-set(CMAKE_EXE_LINKER_FLAGS "-s STANDALONE_WASM -Wl,--allow-undefined")
+set(CMAKE_EXE_LINKER_FLAGS "-s STANDALONE_WASM -Wl,--allow-undefined ")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s STACK_SIZE=48388608")
 
 # テスト用の実行ファイル
 # add_executable(test test.c)

@@ -2,20 +2,20 @@
 
 Copyright 2003 Free Software Foundation, Inc.
 
-This file is part of the GNU GMPbench.
+This file is part of GMPbench.
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+GMPbench is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
 version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
+GMPbench is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA.  */
+GMPbench.  If not, see http://www.gnu.org/licenses/.  */
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -36,18 +36,18 @@ main (int argc, char *argv[])
   double t, f, ops_per_sec;
   int decimals;
 
-  // if (argc != 2)
-  //   {
-  //     fprintf (stderr, "usage: %s n\n", argv[0]);
-  //     fprintf (stderr, "  where n is number of bits in numbers tested\n");
-  //     return -1;
-  //   }
+//   if (argc != 2)
+//     {
+//       fprintf (stderr, "usage: %s n\n", argv[0]);
+//       fprintf (stderr, "  where n is number of bits in numbers tested\n");
+//       return -1;
+//     }
 
-  // if (argc == 2)
-  //   n = atoi (argv[1]);
-  
-  // 512 1024 2048
-  n = 512;
+//   if (argc == 2)
+//     n = atoi (argv[1]);
+     
+// 512 1024 2048
+  n = 2048;
 
   gmp_randinit_default (rs);
   mpz_init (p);
@@ -56,6 +56,7 @@ main (int argc, char *argv[])
 
   printf ("Generating p, q, d..."); fflush (stdout);
 
+#if 0
   mpz_urandomb (p, rs, n/2);
   mpz_setbit (p, n / 2 - 1);
   mpz_setbit (p, n / 2 - 2);
@@ -65,6 +66,23 @@ main (int argc, char *argv[])
   mpz_setbit (q, n / 2 - 1);
   mpz_setbit (q, n / 2 - 2);
   mpz_nextprime (q, q);
+#else
+  do
+    {
+      mpz_urandomb (p, rs, n/2);
+      mpz_setbit (p, n / 2 - 1);
+      mpz_setbit (p, n / 2 - 2);
+      mpz_setbit (p, 0);
+
+      mpz_urandomb (q, rs, n/2);
+      mpz_setbit (q, n / 2 - 1);
+      mpz_setbit (q, n / 2 - 2);
+      mpz_setbit (q, 0);
+
+      mpz_gcd (pq, p, q);
+    }
+  while (mpz_cmp_ui (pq, 1) != 0);
+#endif
 
   mpz_mul (pq, p, q);
 
@@ -107,6 +125,8 @@ main (int argc, char *argv[])
   printf ("done\n");
 
   niter = (unsigned long) (1e4 / t);
+  if (niter == 0)
+    niter = 1;
   printf ("Signing random messages %lu times...", niter);  fflush (stdout);
   t0 = cputime ();
   for (i = niter; i > 0; i--)
@@ -178,12 +198,11 @@ cputime ()
 #include <sys/resource.h>
 
 #include <time.h>
-
 int cputime() {
-  struct timespec ts;
-  clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
-  return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
-}
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
+    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+  }
 
 // int
 // cputime ()
