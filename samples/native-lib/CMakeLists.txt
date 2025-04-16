@@ -6,10 +6,10 @@ cmake_minimum_required(VERSION 3.14)
 include(CheckPIESupported)
 find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(GMP REQUIRED IMPORTED_TARGET gmp)
+pkg_check_modules(GMP_ARM REQUIRED IMPORTED_TARGET gmp-arm)
 
 project(native_lib)
-# include("/home/koichi/wasm-micro-runtime/samples/native-lib/toolchain-aarch64.cmake")
+include("/home/koichi/wasm-micro-runtime/samples/native-lib/toolchain-aarch64.cmake")
 
 ################ runtime settings  ##############
 string (TOLOWER ${CMAKE_HOST_SYSTEM_NAME} WAMR_BUILD_PLATFORM)
@@ -76,7 +76,7 @@ include (${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
 
 # Note: we build libiwasm as a shared library here so that it can be
 # shared between iwasm and native libraries.
-add_library(libiwasm SHARED ${WAMR_RUNTIME_LIB_SOURCE})
+add_library(libiwasm STATIC ${WAMR_RUNTIME_LIB_SOURCE})
 set_target_properties (libiwasm PROPERTIES OUTPUT_NAME iwasm)
 
 message(STATUS "WAMR_RUNTIME_LIB_SOURCE (3): ${WAMR_RUNTIME_LIB_SOURCE}")
@@ -93,25 +93,28 @@ add_executable (iwasm ${RUNTIME_SOURCE_ALL})
 
 check_pie_supported()
 
-set_target_properties (iwasm PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties (iwasm PROPERTIES 
+POSITION_INDEPENDENT_CODE ON 
+LINK_SEARCH_START_STATIC ON
+LINK_SEARCH_END_STATIC ON)
 
-target_link_libraries(iwasm libiwasm -lpthread -lm -ldl )
+target_link_libraries(iwasm libiwasm -static -pthread -lm -ldl )
 
 ################ native libraries ###############
-add_library (test_add SHARED test_add.c)
-add_library (test_sqrt SHARED test_sqrt.c)
-add_library (test_hello SHARED test_hello.c)
+add_library (test_add STATIC test_add.c)
+add_library (test_sqrt STATIC test_sqrt.c)
+add_library (test_hello STATIC test_hello.c)
 
 set(NATIVELIB_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(test_rsa SHARED ${NATIVELIB_DIR}/native_gmp.c)
+add_library(test_rsa STATIC ${NATIVELIB_DIR}/native_gmp.c)
 
-target_link_libraries(test_rsa PUBLIC PkgConfig::GMP)
+target_link_libraries(test_rsa PUBLIC PkgConfig::GMP_ARM)
 
 # Note: Unlike simpler examples above, test_hello2 directly uses
 # the API provided by the libiwasm library.
 
-add_library (test_hello2 SHARED test_hello2.c)
+add_library (test_hello2 STATIC test_hello2.c)
 target_link_libraries(test_hello2 libiwasm)
 
 ################ wasm application ###############

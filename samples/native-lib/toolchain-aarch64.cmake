@@ -8,6 +8,7 @@ set(CMAKE_SYSTEM_PROCESSOR aarch64)
 set(CMAKE_C_COMPILER /usr/bin/aarch64-linux-gnu-gcc)
 set(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++)
 
+
 # リンカ・アーカイバなど（任意）
 # set(CMAKE_AR aarch64-linux-gnu-ar)
 # set(CMAKE_RANLIB aarch64-linux-gnu-ranlib)
@@ -23,3 +24,5 @@ set(CMAKE_SIZEOF_VOID_P 8)
 # set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 message(STATUS "CMAKE_SYSTEM_PROCESSOR = ${CMAKE_SYSTEM_PROCESSOR}")
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
