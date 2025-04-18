@@ -3,6 +3,8 @@ project(wasm-app)
 
 # Emscripten の emcc コマンドをチェック
 find_program(EMCC_EXECUTABLE emcc)
+# 環境変数PATHから探す
+# EMCC_EXECUTABLEにemccのフルパスが入る
 
 pkg_check_modules(GMP_WASM REQUIRED IMPORTED_TARGET GLOBAL gmp-wasm)
 
