@@ -72,30 +72,63 @@ nmpz_mod_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, uint32_t op2_
 }
 
 static int
-nmpz_mul_wrapper(wasm_exec_env_t exec_env,  uint32_t num1_str_addr, uint32_t num2_str_addr , uint32_t result_str_addr)
+nmpz_mul_wrapper(wasm_exec_env_t exec_env,  size_t count1, void *buffer1)
 {
-    mpz_t num1, num2, result;
-    mpz_init(num1);  // mpz_t型の変数を初期化
-    mpz_init(num2);
-    mpz_init(result);
-
+    printf("native %zu bytes:\n", count1);
+    mpz_t tmp;
+    
+    mpz_init(tmp);
     wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *num1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num1_str_addr);
-    char *num2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num2_str_addr);
-    char *result_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)result_str_addr);
+    void *buf = wasm_runtime_addr_app_to_native(inst, (uint64_t)buffer1);
+    mpz_import(tmp, count1, 1, 1, 1, 0, buf);
+    gmp_printf("Imported value:  %Zd\n", tmp);
 
-    // 文字列として渡された数値をmpz_t型に変換
-    mpz_set_str(num1, num1_str, 10);  // 10は10進数
-    mpz_set_str(num2, num2_str, 10);
-    // 掛け算を実行
-    mpz_mul(result, num1, num2);
-    // 結果を文字列に変換
-    mpz_get_str(result_str, 10, result);  // 10進数で結果を文字列として取得
-    // 使用が終わったmpz_t型の変数を解放
-    mpz_clear(num1);
-    mpz_clear(num2);
-    mpz_clear(result);
-    return 0;
+    // mpz_t rop, op1, op2;
+    // mpz_init(rop);
+    // mpz_init(op1);
+    // mpz_init(op2);
+
+    // // アドレス変換
+    // wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+    // void *op1_buffer = wasm_runtime_addr_app_to_native(inst, (uint64_t)op1_buffer);
+    // void *op2_buffer = wasm_runtime_addr_app_to_native(inst, (uint64_t)op2_buffer);
+    // size_t *count = wasm_runtime_addr_app_to_native(inst, (uint64_t)count_rop);
+    // //バイト列からmpz_t型に変換 
+    // mpz_import(op1, count1, 1, 1, 1, 0, op1_buffer);
+    // mpz_import(op2, count2, 1, 1, 1, 0, op2_buffer);
+    // // 計算
+    // mpz_mul(rop,op1,op2);
+    // // 結果をバイト列に変換
+    // void *rop_buffer = mpz_export(NULL, count, 1, 1, 1, 0, rop);
+
+    // mpz_clear(rop);
+    // mpz_clear(op1);
+    // mpz_clear(op2);
+    // return rop_buffer;
+
+    // ***
+    // mpz_t num1, num2, result;
+    // mpz_init(num1);  // mpz_t型の変数を初期化
+    // mpz_init(num2);
+    // mpz_init(result);
+
+    // wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+    // char *num1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num1_str_addr);
+    // char *num2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num2_str_addr);
+    // char *result_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)result_str_addr);
+
+    // // 文字列として渡された数値をmpz_t型に変換
+    // mpz_set_str(num1, num1_str, 10);  // 10は10進数
+    // mpz_set_str(num2, num2_str, 10);
+    // // 掛け算を実行
+    // mpz_mul(result, num1, num2);
+    // // 結果を文字列に変換
+    // mpz_get_str(result_str, 10, result);  // 10進数で結果を文字列として取得
+    // // 使用が終わったmpz_t型の変数を解放
+    // mpz_clear(num1);
+    // mpz_clear(num2);
+    // mpz_clear(result);
+    // return 0;
 }
 
 static int
@@ -245,7 +278,7 @@ static int native_add_wrapper(wasm_exec_env_t exec_env, int32_t op1, int32_t op2
 static NativeSymbol native_symbols[] = {
     REG_NATIVE_FUNC(nmpz_nextprime, "(ii)i"),
     REG_NATIVE_FUNC(nmpz_mod, "(iii)i"),
-    REG_NATIVE_FUNC(nmpz_mul, "(iii)i"),
+    REG_NATIVE_FUNC(nmpz_mul, "(ii)i"),
     REG_NATIVE_FUNC(nmpz_sub_ui, "(iii)i"),
     REG_NATIVE_FUNC(nmpz_invert,"(iii)i"),
     REG_NATIVE_FUNC(nmpz_gcd,"(iii)i"),

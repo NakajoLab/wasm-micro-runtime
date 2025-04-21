@@ -1,330 +1,86 @@
-/* rsa.c -- benchmark signing with the RSA algorithm.
+//これはテスト用
 
-Copyright 2003 Free Software Foundation, Inc.
-
-This file is part of GMPbench.
-
-GMPbench is free software; you can redistribute it and/or modify it under the
-terms of the GNU General Public License as published by the Free Software
-Foundation; either version 3 of the License, or (at your option) any later
-version.
-
-GMPbench is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with
-GMPbench.  If not, see http://www.gnu.org/licenses/.  */
-
-
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <gmp.h>
-#include "timing.h"
-
-#define RSA_EXP 0x10001
-
-#define BUF 2000
-int
-nmpz_nextprime( char* _op_str, char* _rop_str);
-int
-nmpz_mod(char* _op1_str,  char* _op2_str , char* _rop_str);
-int
-nmpz_mul( char* _num1_str, char* _num2_str , char* _result_str);
-int
-nmpz_sub_ui(char* _op1_str,  unsigned long int _op2_str , char* _rop_str);
-int
-nmpz_invert(char* _num1_str, char* _num2_str , char* _result_str);
-int
-nmpz_gcd(char* _op1_str,  char* _op2_str , char* _rop_str);
-int
-nmpz_powm(char* _op1_str,  char* _op2_str ,char* _op3_str, char* _rop_str);
-int
-nmpz_add(char* _num1_str, char* _num2_str , char* _result_str);
-
-int wrapped_nmpz_nextprime(mpz_t rop, mpz_t op, unsigned int buf){
-    char *tmp_rop = malloc(buf);
- 
-    nmpz_nextprime(mpz_get_str(NULL,10,op),tmp_rop); 
-    mpz_set_str(rop, tmp_rop, 10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_mod(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-
-    nmpz_mod(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_mul(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_mul(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_sub_ui(mpz_t rop,mpz_t op1,unsigned long int op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_sub_ui(mpz_get_str(NULL,10,op1),op2,tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-};
-int wrapped_nmpz_invert(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    int res;
-    res = nmpz_invert(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return res;
-}
-int wrapped_nmpz_gcd(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_gcd(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_powm(mpz_t rop, const mpz_t base, const mpz_t exp, const mpz_t mod, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_powm(mpz_get_str(NULL,10,base),mpz_get_str(NULL,10,exp),mpz_get_str(NULL,10,mod),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_add(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-
-
-int cputime (void);
-void rsa_sign (mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t);
+#include <string.h>
 
 int
-main (int argc, char *argv[])
+nmpz_mul(size_t count1, void* buffer1);
+int
+wrapped_nmpz_mul(mpz_t op1)
 {
-  gmp_randstate_t rs;
-  mpz_t p, q, pq, pm1, qm1, phi, e, d, p_i_q, dp, dq, msg[1024], smsg;
-  unsigned long int n, i, niter, t0, ti;
-  double t, f, ops_per_sec;
-  int decimals;
+    size_t count1, count2, count_rop;
+    
+    // バイト列に変換
+    void *buffer1 = mpz_export(NULL, &count1, 1, 1, 1, 0, op1);
+    printf("Exported %zu bytes:\n", count1);
+    nmpz_mul(count1,buffer1);
+    // mpz_t imported;
+    // mpz_init(imported);
+    // mpz_import(imported, count1, 1, 1, 1, 0, buffer1);
+    // gmp_printf("Imported1:  %Zd\n", imported);
 
-//   if (argc != 2)
-//     {
-//       fprintf (stderr, "usage: %s n\n", argv[0]);
-//       fprintf (stderr, "  where n is number of bits in numbers tested\n");
-//       return -1;
-//     }
+    // void *buffer2 = mpz_export(NULL, &count2, 1, 1, 1, 0, op2);
+    // ネイティブコード呼び出し
+    // void *rop_buffer = nmpz_mul(buffer1, count1, buffer2, count2, &count_rop);
+    
+    // mpz_import(rop, count_rop, 1, 1, 1, 0, rop_buffer);
 
-//   if (argc == 2)
-//     n = atoi (argv[1]);
-     
-// 512 1024 2048
-  n = 2048;
-
-  gmp_randinit_default (rs);
-  mpz_init (p);
-  mpz_init (q);
-  mpz_init (pq);
-
-  printf ("Generating p, q, d..."); fflush (stdout);
-
-#if 0
-  mpz_urandomb (p, rs, n/2);
-  mpz_setbit (p, n / 2 - 1);
-  mpz_setbit (p, n / 2 - 2);
-//   mpz_nextprime (p, p);
-  wrapped_nmpz_nextprime(p, p, BUF);
-
-  mpz_urandomb (q, rs, n/2);
-  mpz_setbit (q, n / 2 - 1);
-  mpz_setbit (q, n / 2 - 2);
-//   mpz_nextprime (q, q);
-  wrapped_nmpz_nextprime(q, q, BUF);
-#else
-  do
-    {
-      mpz_urandomb (p, rs, n/2);
-      mpz_setbit (p, n / 2 - 1);
-      mpz_setbit (p, n / 2 - 2);
-      mpz_setbit (p, 0);
-
-      mpz_urandomb (q, rs, n/2);
-      mpz_setbit (q, n / 2 - 1);
-      mpz_setbit (q, n / 2 - 2);
-      mpz_setbit (q, 0);
-
-    //   mpz_gcd (pq, p, q);
-      wrapped_nmpz_gcd(pq, p, q, BUF);
-    }
-  while (mpz_cmp_ui (pq, 1) != 0);
-#endif
-
-//   mpz_mul (pq, p, q);
-  wrapped_nmpz_mul(pq, p, q, BUF);
-
-  mpz_init_set_ui (e, RSA_EXP);
-  mpz_init (d);
-  mpz_init (pm1);
-  mpz_init (qm1);
-  mpz_init (phi);
-
-//   mpz_sub_ui (pm1, p, 1);
-  wrapped_nmpz_sub_ui(pm1, p, 1, BUF);
-//   mpz_sub_ui (qm1, q, 1);
-  wrapped_nmpz_sub_ui(qm1, q, 1, BUF);
-//   mpz_mul (phi, pm1, qm1);
-  wrapped_nmpz_mul(phi, pm1, qm1, BUF);
-//   if (mpz_invert (d, e, phi) == 0)
-//     abort ();
- if (wrapped_nmpz_invert (d, e, phi,BUF) == 0){
-    abort ();
- }
-
-  printf ("done; pq is %d bits\n", (int) mpz_sizeinbase (pq, 2));
-
-  printf ("Precomputing CRT constants\n");
-
-  mpz_init (p_i_q);
-//   if (mpz_invert (p_i_q, p, q) == 0)
-//     abort ();
-  if (wrapped_nmpz_invert (p_i_q, p, q,BUF) == 0){
-    abort ();
-  }
-   
-
-  mpz_init (dp);
-  mpz_init (dq);
-//   mpz_mod (dp, d, pm1);
-  wrapped_nmpz_mod(dp,d,pm1,BUF);
-//   mpz_mod (dq, d, qm1);
-  wrapped_nmpz_mod(dq,d,qm1,BUF);
-
-  printf ("Generating random messages\n");
-
-  for (i = 0; i < 1024; i++)
-    {
-      mpz_init (msg[i]);
-      mpz_urandomb (msg[i], rs, n);
-    }
-  mpz_init (smsg);
-
-  printf ("Calibrating CPU speed...");  fflush (stdout);
-  TIME (t, rsa_sign (smsg, msg[0], p, q, pq, p_i_q, dp, dq));
-  printf ("done\n");
-
-  niter = (unsigned long) (1e4 / t);
-  if (niter == 0)
-    niter = 1;
-  printf ("Signing random messages %lu times...", niter);  fflush (stdout);
-  t0 = cputime ();
-  for (i = niter; i > 0; i--)
-    {
-      rsa_sign (smsg, msg[i % 1024], p, q, pq, p_i_q, dp, dq);
-    }
-  ti = cputime () - t0;
-  printf ("done!\n");
-
-  ops_per_sec = 1000.0 * niter / ti;
-  f = 100.0;
-  for (decimals = 0;; decimals++)
-    {
-      if (ops_per_sec > f)
-	break;
-      f = f * 0.1;
-    }
-
-  printf ("RESULT: %.*f operations per second\n", decimals, ops_per_sec);
-  return 0;
+    free(buffer1);
+    // free(buffer2);
+    // free(rop_buffer);
+    return 0;
 }
 
-void
-rsa_sign (mpz_t smsg,
-	  mpz_t msg, mpz_t p, mpz_t q, mpz_t pq,
-	  mpz_t p_i_q, mpz_t dp, mpz_t dq)
-{
-  mpz_t  t, o, pr, qr, qr_m_pr;
+int main() {
+    // 1. 初期値を設定
+    mpz_t op1, op2, rop, imported;
+    mpz_init_set_str(op1, "105", 10);
+    mpz_init_set_str(op2, "4", 10);
+    mpz_init_set_str(rop, "0", 10);
 
-  mpz_init (pr);
-  mpz_init (qr);
-  mpz_init (qr_m_pr);
-  mpz_init (t);
-  mpz_init (o);
+    mpz_init(imported);
 
-//   mpz_powm (pr, msg, dp, p);
-  wrapped_nmpz_powm(pr, msg, dp, p, BUF);
-//   mpz_powm (qr, msg, dq, q);
-  wrapped_nmpz_powm(qr, msg, dq, q, BUF);
+    // *計算処理
+    wrapped_nmpz_mul(op1);
+    
 
-  mpz_sub (qr_m_pr, qr, pr);
+    mpz_clear(op1);
+    mpz_clear(op2);
+    mpz_clear(rop);
+    mpz_clear(imported);
 
-//   mpz_mul (t, qr_m_pr, p_i_q);
-  wrapped_nmpz_mul(t, qr_m_pr, p_i_q, BUF);
-//   mpz_mod (o, t, q);		/* slow mod */
-  wrapped_nmpz_mod(o, t, q, BUF);
+    return 0;
 
-//   mpz_mul (t, o, p);
-  wrapped_nmpz_mul(t, o, p, BUF);
-//   mpz_add (smsg, pr, t);
-  wrapped_nmpz_add(smsg, pr, t, BUF);
-//   mpz_mod (smsg, smsg, pq);	/* fast mod */
-  wrapped_nmpz_mod(smsg, smsg, pq, BUF);
 
-  mpz_clear (o);
-  mpz_clear (t);
-  mpz_clear (qr_m_pr);
-  mpz_clear (qr);
-  mpz_clear (pr);
+
+
+    // 2. mpz_export でバイト列に変換
+    
+    // printf("Exported %zu bytes:\n", count);
+    // for (size_t i = 0; i < count; ++i)
+    //     printf("%02X ", ((unsigned char *)buffer)[i]);
+    // printf("\n");
+
+    // 3. mpz_import で元の数値に戻す
+    // mpz_import(imported, count, 1, 1, 1, 0, buffer);
+
+    // // 4. 確認（復元された値が元と一致しているか）
+    // if (mpz_cmp(original, imported) == 0) {
+    //     printf("Success! Imported value matches original.\n");
+    // } else {
+    //     printf("Error! Values do not match.\n");
+    // }
+
+    // // 5. 表示（人間向け）
+    // gmp_printf("Original:  %Zd\n", original);
+    // gmp_printf("Imported:  %Zd\n", imported);
+
+    // 6. 後始末
+    // free(buffer);
+    // mpz_clear(original);
+    // mpz_clear(imported);
+
+    // return 0;
 }
-
-/* Return user CPU time measured in milliseconds.  */
-#if !defined (__sun) \
-    && (defined (USG) || defined (__SVR4) || defined (_UNICOS) \
-	|| defined (__hpux))
-#include <time.h>
-
-int
-cputime ()
-{
-  return (int) ((double) clock () * 1000 / CLOCKS_PER_SEC);
-}
-#else
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-
-#include <time.h>
-int cputime() {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
-    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
-  }
-
-// int
-// cputime ()
-// {
-//   struct rusage rus;
-
-//   getrusage (0, &rus);
-//   return rus.ru_utime.tv_sec * 1000 + rus.ru_utime.tv_usec / 1000;
-// }
-#endif
