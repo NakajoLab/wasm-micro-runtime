@@ -22,6 +22,7 @@ endif ()
 set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
+
 # WAMR features switch
 
 # Set WAMR_BUILD_TARGET, currently values supported are:

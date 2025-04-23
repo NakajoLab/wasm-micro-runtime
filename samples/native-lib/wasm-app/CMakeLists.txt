@@ -25,6 +25,9 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${GMP_WASM_INCLUDE_DIRS}")
 set(CMAKE_EXE_LINKER_FLAGS "-s STANDALONE_WASM -Wl,--allow-undefined ")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s STACK_SIZE=48388608")
 
+# add_compile_options(-fsanitize=undefined)
+# add_link_options(-fsanitize=undefined)
+
 # テスト用の実行ファイル
 # add_executable(test test.c)
 # add_executable(test2 test2.c)
@@ -49,6 +52,7 @@ target_link_libraries(rsa_native PkgConfig::GMP_WASM)
 
 get_property(INCLUDE_DIRS TARGET multiply PROPERTY INCLUDE_DIRECTORIES)
 message(STATUS "Final include directories: ${INCLUDE_DIRS}")
+
 
 # インタプリタ
 add_custom_target(run
