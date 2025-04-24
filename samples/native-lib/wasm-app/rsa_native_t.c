@@ -25,22 +25,101 @@ GMPbench.  If not, see http://www.gnu.org/licenses/.  */
 #define RSA_EXP 0x10001
 
 #define BUF 2000
+
+int nmpz_mul( int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
+
+int nmpz_add(int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
+  int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
+  int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
+
 int
-nmpz_nextprime( char* _op_str, char* _rop_str);
-int
-nmpz_mod(char* _op1_str,  char* _op2_str , char* _rop_str);
-int
-nmpz_mul( char* _num1_str, char* _num2_str , char* _result_str);
+nmpz_mod(int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
+  int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
+  int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
+
+int nmpz_gcd(int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
+  int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
+  int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
+
+int nmpz_invert(int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
+  int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
+  int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
+
 int
 nmpz_sub_ui(char* _op1_str,  unsigned long int _op2_str , char* _rop_str);
 int
-nmpz_invert(char* _num1_str, char* _num2_str , char* _result_str);
-int
-nmpz_gcd(char* _op1_str,  char* _op2_str , char* _rop_str);
+nmpz_nextprime( char* _op_str, char* _rop_str);
+
+
+
+
 int
 nmpz_powm(char* _op1_str,  char* _op2_str ,char* _op3_str, char* _rop_str);
+
+
 int
-nmpz_add(char* _num1_str, char* _num2_str , char* _result_str);
+wrapped_nmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2){
+    int alloc_size = abs(op1->_mp_size) + abs(op2->_mp_size) + 1;
+    
+    mpz_realloc(rop, alloc_size);
+
+    nmpz_mul(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
+        op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+        op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+    
+    return 0;
+}
+
+int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2){
+  int alloc_size = max(abs(op1->_mp_size), abs(op2->_mp_size)) + 1;
+    
+  mpz_realloc(rop, alloc_size);
+
+  nmpz_add(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
+      op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+      op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+  
+  return 0;
+}
+
+int wrapped_nmpz_mod(mpz_t rop, mpz_t op1, mpz_t op2){
+  int alloc_size = min(abs(op1->_mp_size), abs(op2->_mp_size)) + 1;
+    
+  mpz_realloc(rop, alloc_size);
+
+  nmpz_mod(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
+      op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+      op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+
+  return 0;
+}
+
+int wrapped_nmpz_gcd(mpz_t rop,mpz_t op1,mpz_t op2){
+  int alloc_size = min(abs(op1->_mp_size), abs(op2->_mp_size)) + 1;
+    
+  mpz_realloc(rop, alloc_size);
+
+  nmpz_gcd(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
+      op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+      op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+
+  return 0;
+}
+
+//TODO
+int wrapped_nmpz_invert(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
+  int alloc_size = min(abs(op1->_mp_size), abs(op2->_mp_size)) + 1;
+    
+  mpz_realloc(rop, alloc_size);
+
+  nmpz_invert(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
+      op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+      op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+
+  return 0;
+}
 
 int wrapped_nmpz_nextprime(mpz_t rop, mpz_t op, unsigned int buf){
     char *tmp_rop = malloc(buf);
@@ -51,24 +130,8 @@ int wrapped_nmpz_nextprime(mpz_t rop, mpz_t op, unsigned int buf){
 
     return 0;
 }
-int wrapped_nmpz_mod(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
 
-    nmpz_mod(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
 
-    return 0;
-}
-int wrapped_nmpz_mul(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_mul(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
 int wrapped_nmpz_sub_ui(mpz_t rop,mpz_t op1,unsigned long int op2, unsigned int buf){
     char *tmp_rop = malloc(buf);
     
@@ -78,24 +141,8 @@ int wrapped_nmpz_sub_ui(mpz_t rop,mpz_t op1,unsigned long int op2, unsigned int 
 
     return 0;
 };
-int wrapped_nmpz_invert(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    int res;
-    res = nmpz_invert(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
 
-    return res;
-}
-int wrapped_nmpz_gcd(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_gcd(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
 
-    return 0;
-}
 int wrapped_nmpz_powm(mpz_t rop, const mpz_t base, const mpz_t exp, const mpz_t mod, unsigned int buf){
     char *tmp_rop = malloc(buf);
     
@@ -105,15 +152,7 @@ int wrapped_nmpz_powm(mpz_t rop, const mpz_t base, const mpz_t exp, const mpz_t 
 
     return 0;
 }
-int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_add(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
 
-    return 0;
-}
 
 
 int cputime (void);
@@ -174,13 +213,13 @@ main (int argc, char *argv[])
       mpz_setbit (q, 0);
 
     //   mpz_gcd (pq, p, q);
-      wrapped_nmpz_gcd(pq, p, q, BUF);
+      wrapped_nmpz_gcd(pq, p, q);
     }
   while (mpz_cmp_ui (pq, 1) != 0);
 #endif
 
 //   mpz_mul (pq, p, q);
-  wrapped_nmpz_mul(pq, p, q, BUF);
+  wrapped_nmpz_mul(pq, p, q);
 
   mpz_init_set_ui (e, RSA_EXP);
   mpz_init (d);
@@ -193,7 +232,7 @@ main (int argc, char *argv[])
 //   mpz_sub_ui (qm1, q, 1);
   wrapped_nmpz_sub_ui(qm1, q, 1, BUF);
 //   mpz_mul (phi, pm1, qm1);
-  wrapped_nmpz_mul(phi, pm1, qm1, BUF);
+  wrapped_nmpz_mul(phi, pm1, qm1);
 //   if (mpz_invert (d, e, phi) == 0)
 //     abort ();
  if (wrapped_nmpz_invert (d, e, phi,BUF) == 0){
@@ -215,9 +254,9 @@ main (int argc, char *argv[])
   mpz_init (dp);
   mpz_init (dq);
 //   mpz_mod (dp, d, pm1);
-  wrapped_nmpz_mod(dp,d,pm1,BUF);
+  wrapped_nmpz_mod(dp,d,pm1);
 //   mpz_mod (dq, d, qm1);
-  wrapped_nmpz_mod(dq,d,qm1,BUF);
+  wrapped_nmpz_mod(dq,d,qm1);
 
   printf ("Generating random messages\n");
 
@@ -278,16 +317,16 @@ rsa_sign (mpz_t smsg,
   mpz_sub (qr_m_pr, qr, pr);
 
 //   mpz_mul (t, qr_m_pr, p_i_q);
-  wrapped_nmpz_mul(t, qr_m_pr, p_i_q, BUF);
+  wrapped_nmpz_mul(t, qr_m_pr, p_i_q);
 //   mpz_mod (o, t, q);		/* slow mod */
-  wrapped_nmpz_mod(o, t, q, BUF);
+  wrapped_nmpz_mod(o, t, q);
 
 //   mpz_mul (t, o, p);
-  wrapped_nmpz_mul(t, o, p, BUF);
+  wrapped_nmpz_mul(t, o, p);
 //   mpz_add (smsg, pr, t);
-  wrapped_nmpz_add(smsg, pr, t, BUF);
+  wrapped_nmpz_add(smsg, pr, t);
 //   mpz_mod (smsg, smsg, pq);	/* fast mod */
-  wrapped_nmpz_mod(smsg, smsg, pq, BUF);
+  wrapped_nmpz_mod(smsg, smsg, pq);
 
   mpz_clear (o);
   mpz_clear (t);

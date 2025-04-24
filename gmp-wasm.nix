@@ -14,7 +14,7 @@ stdenv.mkDerivation {
 
   configurePhase = ''
     runHook preConfigure
-    emconfigure env HOST_CC=gcc ./configure --disable-assembly --host none --prefix=$out
+    emconfigure env HOST_CC=gcc ./configure --disable-assembly --host none  --prefix=$out
     runHook postConfigure
   '';
 
