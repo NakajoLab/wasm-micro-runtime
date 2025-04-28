@@ -24,7 +24,6 @@ GMPbench.  If not, see http://www.gnu.org/licenses/.  */
 
 #define RSA_EXP 0x10001
 
-#define BUF 2000
 
 int nmpz_mul( int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
     int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
@@ -53,34 +52,51 @@ int
 nmpz_nextprime( char* _op_str, char* _rop_str);
 
 
-
-
 int
 nmpz_powm(char* _op1_str,  char* _op2_str ,char* _op3_str, char* _rop_str);
 
-
+// 定義
 int
 wrapped_nmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2){
-    int alloc_size = abs(op1->_mp_size) + abs(op2->_mp_size) + 1;
-    
-    mpz_realloc(rop, alloc_size);
+  if(op1->_mp_alloc % 2 != 0){
+    mpz_realloc(op1, op1->_mp_alloc+1);
+  }
+  if(op2->_mp_alloc % 2 != 0){
+      mpz_realloc(op2, op2->_mp_alloc+1);
+  }
 
-    nmpz_mul(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
-        op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
-        op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
-    
-    return 0;
+  int alloc_size = abs(op1->_mp_size) + abs(op2->_mp_size) + 1;
+  if(alloc_size  % 2 != 0){
+      alloc_size++;
+  }
+  mpz_realloc(rop, alloc_size);
+
+  nmpz_mul(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
+      op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+      op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+
+  return 0;
 }
 
+
 int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2){
-  int alloc_size = max(abs(op1->_mp_size), abs(op2->_mp_size)) + 1;
-    
+  if(op1->_mp_alloc % 2 != 0){
+    mpz_realloc(op1, op1->_mp_alloc+1);
+  }
+  if(op2->_mp_alloc % 2 != 0){
+      mpz_realloc(op2, op2->_mp_alloc+1);
+  }
+
+  int alloc_size = abs(op1->_mp_size) + abs(op2->_mp_size) + 1;
+  if(alloc_size  % 2 != 0){
+      alloc_size++;
+  }
   mpz_realloc(rop, alloc_size);
 
   nmpz_add(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
       op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
       op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
-  
+
   return 0;
 }
 

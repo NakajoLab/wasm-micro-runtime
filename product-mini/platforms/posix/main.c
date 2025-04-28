@@ -579,7 +579,7 @@ main(int argc, char *argv[])
 // 0から268435456 536870912
     uint32 heap_size = 64*1024*1024;
 #else
-    uint32 heap_size = 16 * 1024;
+    uint32 heap_size = 160 * 1024;
 #endif
 #if WASM_ENABLE_FAST_JIT != 0
     uint32 jit_code_cache_size = FAST_JIT_DEFAULT_CODE_CACHE_SIZE;

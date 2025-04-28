@@ -20,58 +20,6 @@
 #include "wasm_export.h"
 
 // ネイティブライブラリの登録
-
-static int
-nmpz_nextprime_wrapper(wasm_exec_env_t exec_env,  uint32_t op_str_addr, uint32_t rop_str_addr)
-{
-    mpz_t rop, op;
-    mpz_init(rop);
-    mpz_init(op);
-    
-    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *rop_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)rop_str_addr);
-    char *op_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op_str_addr);
-    
-    mpz_set_str(op, op_str, 10);
-
-    mpz_nextprime(rop,op);
-
-    mpz_get_str(rop_str, 10, rop);
-
-    mpz_clear(rop);
-    mpz_clear(op);
-    
-    return 0;
-}
-
-static int
-nmpz_mod_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, uint32_t op2_str_addr , uint32_t rop_str_addr)
-{
-    mpz_t rop, op1,op2;
-    mpz_init(rop);
-    mpz_init(op1);
-    mpz_init(op2);
-
-    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *rop_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)rop_str_addr);
-    char *op1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op1_str_addr);
-    char *op2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op2_str_addr);
-
-    mpz_set_str(op1, op1_str, 10);
-    mpz_set_str(op2, op2_str, 10);
-
-    mpz_mod(rop,op1,op2);
-
-    mpz_get_str(rop_str, 10, rop);
-
-    mpz_clear(rop);
-    mpz_clear(op1);
-    mpz_clear(op2);
-    
-    return 0;  
-}
-
-
 static int
 nmpz_mul_wrapper(wasm_exec_env_t exec_env,
     uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
@@ -82,18 +30,18 @@ nmpz_mul_wrapper(wasm_exec_env_t exec_env,
     wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
 
     op1->_mp_alloc = (_mp_alloc_1)/2;
-    op1->_mp_size = (_mp_size_1+1)/2;
+    op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
     op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);
 
     op2->_mp_alloc = (_mp_alloc_2)/2;
-    op2->_mp_size = (_mp_size_2+1)/2;
+    op2->_mp_size = (_mp_size_2 < 0) ? -(-_mp_size_2+1)/2 : (_mp_size_2+1)/2;
     op2->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_2);
     
-    if(_mp_size_1%2 != 0){
-        op1->_mp_d[op1->_mp_size - 1] &= 0x00000000FFFFFFFFUL;
+    if(abs(_mp_size_1)%2 != 0){
+        op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
     }
-    if(_mp_size_2%2 != 0){
-        op2->_mp_d[op2->_mp_size - 1] &= 0x00000000FFFFFFFFUL;
+    if(abs(_mp_size_2)%2 != 0){
+        op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
     }
     
     int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
@@ -110,162 +58,268 @@ nmpz_mul_wrapper(wasm_exec_env_t exec_env,
 }
 
 static int
-nmpz_sub_ui_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, unsigned long int op2 , uint32_t rop_str_addr)
+nmpz_add_wrapper(wasm_exec_env_t exec_env,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, uint32_t *_mp_d_2)
 {
-    mpz_t rop, op1;
-    mpz_init(rop);
-    mpz_init(op1);
-
+    mpz_t op1,op2,rop;   
     wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *rop_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)rop_str_addr);
-    char *op1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op1_str_addr);
-
-    mpz_set_str(op1, op1_str, 10);
-
-    mpz_sub_ui(rop,op1,op2);
-
-    mpz_get_str(rop_str, 10, rop);
-
-    mpz_clear(rop);
-    mpz_clear(op1);
-
-    return 0;  
-}
-
-static int
-nmpz_invert_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, uint32_t op2_str_addr , uint32_t rop_str_addr){
-    int res;
-    mpz_t rop, op1,op2;
-    mpz_init(rop);
-    mpz_init(op1);
-    mpz_init(op2);
-
-    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *rop_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)rop_str_addr);
-    char *op1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op1_str_addr);
-    char *op2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op2_str_addr);
-
-    mpz_set_str(op1, op1_str, 10);
-    mpz_set_str(op2, op2_str, 10);
-
-    res = mpz_invert(rop,op1,op2);
-
-    mpz_get_str(rop_str, 10, rop);
-
-    mpz_clear(rop);
-    mpz_clear(op1);
-    mpz_clear(op2);
     
-    return res;  
-}
+    op1->_mp_alloc = (_mp_alloc_1)/2;
+    op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
+    op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);
 
-static int
-nmpz_gcd_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, uint32_t op2_str_addr , uint32_t rop_str_addr){
-    mpz_t rop, op1,op2;
-    mpz_init(rop);
-    mpz_init(op1);
-    mpz_init(op2);
-
-    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *rop_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)rop_str_addr);
-    char *op1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op1_str_addr);
-    char *op2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op2_str_addr);
-
-    mpz_set_str(op1, op1_str, 10);
-    mpz_set_str(op2, op2_str, 10);
-
-    mpz_gcd(rop,op1,op2);
-
-    mpz_get_str(rop_str, 10, rop);
-
-    mpz_clear(rop);
-    mpz_clear(op1);
-    mpz_clear(op2);
+    op2->_mp_alloc = (_mp_alloc_2)/2;
+    op2->_mp_size = (_mp_size_2 < 0) ? -(-_mp_size_2+1)/2 : (_mp_size_2+1)/2;
+    op2->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_2);
     
-    return 0;  
-}
-static int
-nmpz_powm_wrapper(wasm_exec_env_t exec_env,  uint32_t op1_str_addr, uint32_t op2_str_addr , uint32_t op3_str_addr, uint32_t rop_str_addr){
-    mpz_t rop, op1,op2,op3;
-    mpz_init(rop);
-    mpz_init(op1);
-    mpz_init(op2);
-    mpz_init(op3);
-
-    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *rop_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)rop_str_addr);
-    char *op1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op1_str_addr);
-    char *op2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op2_str_addr);
-    char *op3_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)op3_str_addr); 
-
-    mpz_set_str(op1, op1_str, 10);
-    mpz_set_str(op2, op2_str, 10);
-    mpz_set_str(op3, op3_str, 10);
-
-    mpz_powm(rop,op1,op2,op3);
-
-    mpz_get_str(rop_str, 10, rop);
-
-    mpz_clear(rop);
-    mpz_clear(op1);
-    mpz_clear(op2);
-    mpz_clear(op3);
+    if(abs(_mp_size_1)%2 != 0){
+        op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+    }
+    if(abs(_mp_size_2)%2 != 0){
+        op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+    }
     
-    return 0;  
-}
-static int
-nmpz_add_wrapper(wasm_exec_env_t exec_env,  uint32_t num1_str_addr, uint32_t num2_str_addr , uint32_t result_str_addr)
-{
-    mpz_t num1, num2, result;
-    mpz_init(num1);  // mpz_t型の変数を初期化
-    mpz_init(num2);
-    mpz_init(result);
-
-    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
-    char *num1_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num1_str_addr);
-    char *num2_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)num2_str_addr);
-    char *result_str     = wasm_runtime_addr_app_to_native(inst, (uint64_t)result_str_addr);
-
-    // 文字列として渡された数値をmpz_t型に変換
-    mpz_set_str(num1, num1_str, 10);  // 10は10進数
-    mpz_set_str(num2, num2_str, 10);
-    // 掛け算を実行
-    mpz_add(result, num1, num2);
-    // 結果を文字列に変換
-    mpz_get_str(result_str, 10, result);  // 10進数で結果を文字列として取得
-    // 使用が終わったmpz_t型の変数を解放
-    mpz_clear(num1);
-    mpz_clear(num2);
-    mpz_clear(result);
+    int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+    rop-> _mp_alloc = alloc/2;
+    rop->_mp_size = 0;
+    rop->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+    
+    mpz_add(rop,op1,op2);
+    
+    int rop_size = rop->_mp_size;
+    *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size * 2;
+    
     return 0;
 }
 
-//何もしない
-static int test_tmp_wrapper(){
+static int
+nmpz_mod_wrapper(wasm_exec_env_t exec_env,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, uint32_t *_mp_d_2)
+{
+    mpz_t op1,op2,rop;   
+    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+
+    op1->_mp_alloc = (_mp_alloc_1)/2;
+    op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
+    op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);
+
+    op2->_mp_alloc = (_mp_alloc_2)/2;
+    op2->_mp_size = (_mp_size_2 < 0) ? -(-_mp_size_2+1)/2 : (_mp_size_2+1)/2;
+    op2->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_2);
+    
+    if(abs(_mp_size_1)%2 != 0){
+        op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+    }
+    if(abs(_mp_size_2)%2 != 0){
+        op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+    }
+    
+    int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+    rop-> _mp_alloc = alloc/2;
+    rop->_mp_size = 0;
+    rop->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+    
+    mpz_mod(rop,op1,op2);
+    
+    int rop_size = rop->_mp_size;
+    *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size * 2;
+    
     return 0;
 }
-//引数２つの和を計算
-static int native_add_wrapper(wasm_exec_env_t exec_env, int32_t op1, int32_t op2) {
-    return op1 + op2;
+
+static int
+nmpz_gcd_wrapper(wasm_exec_env_t exec_env,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, uint32_t *_mp_d_2){
+        mpz_t op1,op2,rop;   
+        wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+        
+        op1->_mp_alloc = (_mp_alloc_1)/2;
+        op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
+        op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);
+    
+        op2->_mp_alloc = (_mp_alloc_2)/2;
+        op2->_mp_size = (_mp_size_2 < 0) ? -(-_mp_size_2+1)/2 : (_mp_size_2+1)/2;
+        op2->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_2);
+        
+        if(abs(_mp_size_1)%2 != 0){
+            op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        if(abs(_mp_size_2)%2 != 0){
+            op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        
+        int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+        rop-> _mp_alloc = alloc/2;
+        rop->_mp_size = 0;
+        rop->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+        
+        mpz_gcd(rop,op1,op2);
+        
+        int rop_size = rop->_mp_size;
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size * 2;
+
+        return 0;
 }
+
+static int
+nmpz_invert_wrapper(wasm_exec_env_t exec_env,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, uint32_t *_mp_d_2){
+        mpz_t op1,op2,rop;   
+        wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+        
+        op1->_mp_alloc = (_mp_alloc_1)/2;
+        op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
+        op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);
+    
+        op2->_mp_alloc = (_mp_alloc_2)/2;
+        op2->_mp_size = (_mp_size_2 < 0) ? -(-_mp_size_2+1)/2 : (_mp_size_2+1)/2;
+        op2->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_2);
+        
+        if(abs(_mp_size_1)%2 != 0){
+            op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        if(abs(_mp_size_2)%2 != 0){
+            op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        
+        int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+        rop-> _mp_alloc = alloc/2;
+        rop->_mp_size = 0;
+        rop->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+        
+        mpz_invert(rop,op1,op2);
+        
+        int rop_size = rop->_mp_size;
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size * 2;
+
+        return 0;
+}
+
+static int
+nmpz_nextprime_wrapper(wasm_exec_env_t exec_env,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1)
+{
+    mpz_t op1,rop;   
+        wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+        
+        op1->_mp_alloc = (_mp_alloc_1)/2;
+        op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
+        op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);  
+        
+        if(abs(_mp_size_1)%2 != 0){
+            op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        
+        int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+        rop-> _mp_alloc = alloc/2;
+        rop->_mp_size = 0;
+        rop->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+        
+        mpz_nextprime(rop,op1);
+        
+        int rop_size = rop->_mp_size;
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size * 2;
+
+        return 0;
+}
+
+static int
+nmpz_powm_wrapper(wasm_exec_env_t exec_env,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, uint32_t *_mp_d_2,
+    int _mp_alloc_3, int _mp_size_3, uint32_t *_mp_d_3){
+    mpz_t op1,op2,op3,rop;   
+        wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+        
+        op1->_mp_alloc = (_mp_alloc_1)/2;
+        op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
+        op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);
+    
+        op2->_mp_alloc = (_mp_alloc_2)/2;
+        op2->_mp_size = (_mp_size_2 < 0) ? -(-_mp_size_2+1)/2 : (_mp_size_2+1)/2;
+        op2->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_2);
+        
+        op3->_mp_alloc = (_mp_alloc_3)/2;
+        op3->_mp_size = (_mp_size_3 < 0) ? -(-_mp_size_3+1)/2 : (_mp_size_3+1)/2;
+        op3->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_3);
+
+        if(abs(_mp_size_1)%2 != 0){
+            op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        if(abs(_mp_size_2)%2 != 0){
+            op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        if(abs(_mp_size_3)%2 != 0){
+            op3->_mp_d[abs(op3->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+        }
+        
+        int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+        rop-> _mp_alloc = alloc/2;
+        rop->_mp_size = 0;
+        rop->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+        
+        mpz_powm(rop,op1,op2,op3);
+        
+        int rop_size = rop->_mp_size;
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size * 2;
+        
+        return 0;
+}
+
+static int
+nmpz_sub_ui_wrapper(wasm_exec_env_t exec_env,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
+    uint32_t _mp_d_2)
+{
+    mpz_t op1, rop;   
+    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+    
+    op1->_mp_alloc = (_mp_alloc_1)/2;
+    op1->_mp_size = (_mp_size_1 < 0) ? -(-_mp_size_1+1)/2 : (_mp_size_1+1)/2;
+    op1->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);  
+    
+    if(abs(_mp_size_1)%2 != 0){
+        op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+    }
+    
+    int alloc=*(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+    rop-> _mp_alloc = alloc/2;
+    rop->_mp_size = 0;
+    rop->_mp_d     = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+    
+    mpz_sub_ui(rop, op1, _mp_d_2);
+
+    int rop_size = rop->_mp_size;
+    *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size * 2;
+
+    return 0;
+}
+
 
 /* clang-format off */
 #define REG_NATIVE_FUNC(func_name, signature) \
     { #func_name, func_name##_wrapper, signature, NULL }
 
 static NativeSymbol native_symbols[] = {
-    REG_NATIVE_FUNC(nmpz_nextprime, "(ii)i"),
-    REG_NATIVE_FUNC(nmpz_mod, "(iii)i"),
     REG_NATIVE_FUNC(nmpz_mul, "(iiiiiiiii)i"),
-    REG_NATIVE_FUNC(nmpz_sub_ui, "(iii)i"),
-    REG_NATIVE_FUNC(nmpz_invert,"(iii)i"),
-    REG_NATIVE_FUNC(nmpz_gcd,"(iii)i"),
-    REG_NATIVE_FUNC(nmpz_powm,"(iiii)i"),
-    REG_NATIVE_FUNC(nmpz_add, "(iii)i"),
-
-    REG_NATIVE_FUNC(test_tmp,"()i"),
-    REG_NATIVE_FUNC(native_add,"(ii)i"),
-
+    REG_NATIVE_FUNC(nmpz_add, "(iiiiiiiii)i"),
+    REG_NATIVE_FUNC(nmpz_mod, "(iiiiiiiii)i"),
+    REG_NATIVE_FUNC(nmpz_gcd,"(iiiiiiiii)i"),
+    REG_NATIVE_FUNC(nmpz_invert,"(iiiiiiiii)i"),
+    REG_NATIVE_FUNC(nmpz_nextprime, "(iiiiii)i"),
+    REG_NATIVE_FUNC(nmpz_powm,"(iiiiiiiiiiii)i"),
+    REG_NATIVE_FUNC(nmpz_sub_ui, "(iiiiiii)i"),
 };
 /* clang-format on */
 

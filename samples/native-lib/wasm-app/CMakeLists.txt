@@ -103,7 +103,7 @@ add_custom_target(mul2
         --native-lib=./libtest_hello.so
         --native-lib=./libtest_hello2.so
         wasm-app/multiply_native.wasm
-        --stack-size=8*1024*1024 --heap-size=64*1024*1024
+        --stack-size=262144 --heap-size=268435456
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
