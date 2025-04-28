@@ -53,6 +53,7 @@ int wrapped_nmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2)
         op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
         op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
     
+    mpz_realloc(rop, rop->_mp_size);
     return 0;
 }
 
@@ -74,6 +75,8 @@ int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2){
     nmpz_add(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
         op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
         op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+        
+    mpz_realloc(rop, rop->_mp_size);
   
     return 0;
   }
@@ -96,8 +99,9 @@ int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2){
       nmpz_mod(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
           op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
           op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
-      
-      return 0;
+    
+    mpz_realloc(rop, rop->_mp_size); 
+    return 0;
   }
 
 int wrapped_nmpz_gcd(mpz_t rop,mpz_t op1,mpz_t op2){
@@ -118,6 +122,7 @@ int wrapped_nmpz_gcd(mpz_t rop,mpz_t op1,mpz_t op2){
         op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
         op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
     
+    mpz_realloc(rop, rop->_mp_size);
     return 0;
   }
 
@@ -139,6 +144,7 @@ int wrapped_nmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2){
         op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
         op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
     
+    mpz_realloc(rop, rop->_mp_size);
     return 0;
   }
 
@@ -156,6 +162,7 @@ int wrapped_nmpz_nextprime(mpz_t rop, mpz_t op1){
     nmpz_nextprime(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
         op1->_mp_alloc, op1->_mp_size, op1->_mp_d);
     
+    mpz_realloc(rop, rop->_mp_size);
     return 0;
 }
 
@@ -181,6 +188,7 @@ int wrapped_nmpz_powm(mpz_t rop,  mpz_t op1,  mpz_t op2,  mpz_t op3){
         op2->_mp_alloc, op2->_mp_size, op2->_mp_d,
         op3->_mp_alloc, op3->_mp_size, op3->_mp_d);
     
+    mpz_realloc(rop, rop->_mp_size);
     return 0;
 }
 
@@ -200,6 +208,7 @@ int wrapped_nmpz_sub_ui(mpz_t rop,  mpz_t op1,  unsigned long int op2){
         op2
     );
     
+    mpz_realloc(rop, rop->_mp_size);
     return 0;
 }
 
