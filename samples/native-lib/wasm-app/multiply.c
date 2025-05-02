@@ -25,15 +25,19 @@ GMPbench.  If not, see http://www.gnu.org/licenses/.  */
 int cputime (void);
 
 // 自分自身との乗算 multiply_args="128 512 8192 131072 2097152 "
+// #define TWO
+// #define X 2097152
+
 // 異なる2つの数 multiply_args="128,128 512,512 8192,8192 131072,131072 2097152,2097152 15000,10000 20000,10000 30000,10000 16777216,512 16777216,262144"
-#define TWO
-#define X 128
+
 // #define THREE
 // #define Y 128
 // #define Z 128
 
+
+
 int
-main (int argc, char *argv[])
+MulTest (int type, int t1, int t2)
 {
   gmp_randstate_t rs;
   mpz_t x, y, z;
@@ -48,20 +52,34 @@ main (int argc, char *argv[])
   mpz_init (y);
   mpz_init (z);
 
-#ifdef TWO
-    m = X;
-      mpz_urandomb (x, rs, m);
-      xptr = x;
-      yptr = x;
-#endif
-#ifdef THREE
-    m = Y;
-    n = Z;
+  
+  if(type == 2){
+    m = t1;
+    mpz_urandomb (x, rs, m);
+    xptr = x;
+    yptr = x;
+  }else if(type == 3){
+    m = t1;
+    n = t2;
     mpz_urandomb (x, rs, m);
     mpz_urandomb (y, rs, n);
     xptr = x;
     yptr = y;
-#endif
+  }
+// #ifdef TWO
+//     m = X;
+//       mpz_urandomb (x, rs, m);
+//       xptr = x;
+//       yptr = x;
+// #endif
+// #ifdef THREE
+//     m = Y;
+//     n = Z;
+//     mpz_urandomb (x, rs, m);
+//     mpz_urandomb (y, rs, n);
+//     xptr = x;
+//     yptr = y;
+// #endif
 //   if (argc == 2)
 //     {
 //       m = atoi (argv[1]);
@@ -90,7 +108,7 @@ main (int argc, char *argv[])
   printf ("done\n");
 
   niter = 1 + (unsigned long) (1e4 / t);
-  if (argc == 2)
+  if (type == 2)
     printf ("Squaring a %lu-bit number %lu times...", m, niter);
   else
     printf ("Multiplying %lu-bit number with %lu-bit number %lu times...", m, n, niter);
@@ -148,3 +166,22 @@ int cputime() {
 //   return rus.ru_utime.tv_sec * 1000 + rus.ru_utime.tv_usec / 1000;
 // }
 #endif
+
+
+int main(){
+  printf("インタプリタ multiply.c\n");
+  int a[] = {128, 512, 8192, 131072, 2097152};
+  
+  int b1[] = {128,  512,  8192,  131072,  2097152,  15000,  20000, 30000, 16777216, 16777216};
+  int b2[] = {128,  512,  8192,  131072,  2097152,  10000,  10000, 10000, 512,      262144};
+
+  for(int i=0; i<5;i++){
+    MulTest(2, a[i], a[i]);
+    printf("\n");
+  }
+  for(int i=0; i<10;i++){
+    MulTest(3, b1[i], b2[i]);
+    printf("\n");
+  }
+  return 0;
+}
