@@ -33,34 +33,34 @@ int cputime (void);
 // #define Y 128
 // #define Z 128
 
+#include "nativefunc.h"
+// int
+// nmpz_mul( int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
+//     int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
+//     int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
 
-int
-nmpz_mul( int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d_rop,
-    int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
-    int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
+// int
+// wrapped_nmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2)
+// {
+//     if(op1->_mp_alloc % 2 != 0){
+//         mpz_realloc(op1, op1->_mp_alloc+1);
+//     }
+//     if(op2->_mp_alloc % 2 != 0){
+//         mpz_realloc(op2, op2->_mp_alloc+1);
+//     }
 
-int
-wrapped_nmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2)
-{
-    if(op1->_mp_alloc % 2 != 0){
-        mpz_realloc(op1, op1->_mp_alloc+1);
-    }
-    if(op2->_mp_alloc % 2 != 0){
-        mpz_realloc(op2, op2->_mp_alloc+1);
-    }
+//     int alloc_size = abs(op1->_mp_size) + abs(op2->_mp_size) + 1;
+//     if(alloc_size  % 2 != 0){
+//         alloc_size++;
+//     }
+//     mpz_realloc(rop, alloc_size);
 
-    int alloc_size = abs(op1->_mp_size) + abs(op2->_mp_size) + 1;
-    if(alloc_size  % 2 != 0){
-        alloc_size++;
-    }
-    mpz_realloc(rop, alloc_size);
-
-    nmpz_mul(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
-        op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
-        op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+//     nmpz_mul(&rop->_mp_alloc, &rop->_mp_size, rop->_mp_d,
+//         op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+//         op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
     
-    return 0;
-}
+//     return 0;
+// }
 
 int
 MulTest (int type, int t1, int t2)

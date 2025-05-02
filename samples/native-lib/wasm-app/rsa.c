@@ -28,7 +28,7 @@ int cputime (void);
 void rsa_sign (mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t);
 
 int
-main (int argc, char *argv[])
+RsaTest (int keylength)
 {
   gmp_randstate_t rs;
   mpz_t p, q, pq, pm1, qm1, phi, e, d, p_i_q, dp, dq, msg[1024], smsg;
@@ -47,7 +47,7 @@ main (int argc, char *argv[])
 //     n = atoi (argv[1]);
      
 // 512 1024 2048
-  n = 2048;
+  n = keylength;
 
   gmp_randinit_default (rs);
   mpz_init (p);
@@ -213,3 +213,16 @@ int cputime() {
 //   return rus.ru_utime.tv_sec * 1000 + rus.ru_utime.tv_usec / 1000;
 // }
 #endif
+
+int main(){
+  printf("インタプリタ rsa.c\n");
+  // 512 1024 2048
+  int a[] = {512, 1024, 2048};
+
+  for(int i=0; i<3; i++){
+    RsaTest(a[i]);
+    printf("\n");
+  }
+
+  return 0;
+}

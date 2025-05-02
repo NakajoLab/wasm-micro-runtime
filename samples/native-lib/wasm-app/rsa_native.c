@@ -24,103 +24,14 @@ GMPbench.  If not, see http://www.gnu.org/licenses/.  */
 
 #define RSA_EXP 0x10001
 
-#define BUF 2000
-int
-nmpz_nextprime( char* _op_str, char* _rop_str);
-int
-nmpz_mod(char* _op1_str,  char* _op2_str , char* _rop_str);
-int
-nmpz_mul( char* _num1_str, char* _num2_str , char* _result_str);
-int
-nmpz_sub_ui(char* _op1_str,  unsigned long int _op2_str , char* _rop_str);
-int
-nmpz_invert(char* _num1_str, char* _num2_str , char* _result_str);
-int
-nmpz_gcd(char* _op1_str,  char* _op2_str , char* _rop_str);
-int
-nmpz_powm(char* _op1_str,  char* _op2_str ,char* _op3_str, char* _rop_str);
-int
-nmpz_add(char* _num1_str, char* _num2_str , char* _result_str);
-
-int wrapped_nmpz_nextprime(mpz_t rop, mpz_t op, unsigned int buf){
-    char *tmp_rop = malloc(buf);
- 
-    nmpz_nextprime(mpz_get_str(NULL,10,op),tmp_rop); 
-    mpz_set_str(rop, tmp_rop, 10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_mod(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-
-    nmpz_mod(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_mul(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_mul(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_sub_ui(mpz_t rop,mpz_t op1,unsigned long int op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_sub_ui(mpz_get_str(NULL,10,op1),op2,tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-};
-int wrapped_nmpz_invert(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    int res;
-    res = nmpz_invert(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return res;
-}
-int wrapped_nmpz_gcd(mpz_t rop,mpz_t op1,mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_gcd(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_powm(mpz_t rop, const mpz_t base, const mpz_t exp, const mpz_t mod, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_powm(mpz_get_str(NULL,10,base),mpz_get_str(NULL,10,exp),mpz_get_str(NULL,10,mod),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
-int wrapped_nmpz_add(mpz_t rop, mpz_t op1, mpz_t op2, unsigned int buf){
-    char *tmp_rop = malloc(buf);
-    
-    nmpz_add(mpz_get_str(NULL,10,op1),mpz_get_str(NULL,10,op2),tmp_rop);
-    mpz_set_str(rop,tmp_rop,10);
-    free(tmp_rop);
-
-    return 0;
-}
+#include "nativefunc.h"
 
 
 int cputime (void);
 void rsa_sign (mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t, mpz_t);
 
 int
-main (int argc, char *argv[])
+RsaTest (int keylength)
 {
   gmp_randstate_t rs;
   mpz_t p, q, pq, pm1, qm1, phi, e, d, p_i_q, dp, dq, msg[1024], smsg;
@@ -139,7 +50,7 @@ main (int argc, char *argv[])
 //     n = atoi (argv[1]);
      
 // 512 1024 2048
-  n = 2048;
+  n = keylength;
 
   gmp_randinit_default (rs);
   mpz_init (p);
@@ -153,13 +64,13 @@ main (int argc, char *argv[])
   mpz_setbit (p, n / 2 - 1);
   mpz_setbit (p, n / 2 - 2);
 //   mpz_nextprime (p, p);
-  wrapped_nmpz_nextprime(p, p, BUF);
+  wrapped_nmpz_nextprime(p, p);
 
   mpz_urandomb (q, rs, n/2);
   mpz_setbit (q, n / 2 - 1);
   mpz_setbit (q, n / 2 - 2);
 //   mpz_nextprime (q, q);
-  wrapped_nmpz_nextprime(q, q, BUF);
+  wrapped_nmpz_nextprime(q, q);
 #else
   do
     {
@@ -173,14 +84,16 @@ main (int argc, char *argv[])
       mpz_setbit (q, n / 2 - 2);
       mpz_setbit (q, 0);
 
-    //   mpz_gcd (pq, p, q);
-      wrapped_nmpz_gcd(pq, p, q, BUF);
+      mpz_gcd (pq, p, q);
+      
+      wrapped_nmpz_gcd(pq, p, q);
+      
     }
   while (mpz_cmp_ui (pq, 1) != 0);
 #endif
 
-//   mpz_mul (pq, p, q);
-  wrapped_nmpz_mul(pq, p, q, BUF);
+// mpz_mul (pq, p, q);
+  wrapped_nmpz_mul(pq, p, q);
 
   mpz_init_set_ui (e, RSA_EXP);
   mpz_init (d);
@@ -188,18 +101,18 @@ main (int argc, char *argv[])
   mpz_init (qm1);
   mpz_init (phi);
 
-//   mpz_sub_ui (pm1, p, 1);
-  wrapped_nmpz_sub_ui(pm1, p, 1, BUF);
-//   mpz_sub_ui (qm1, q, 1);
-  wrapped_nmpz_sub_ui(qm1, q, 1, BUF);
-//   mpz_mul (phi, pm1, qm1);
-  wrapped_nmpz_mul(phi, pm1, qm1, BUF);
-//   if (mpz_invert (d, e, phi) == 0)
-//     abort ();
- if (wrapped_nmpz_invert (d, e, phi,BUF) == 0){
+  // mpz_sub_ui (pm1, p, 1);
+  wrapped_nmpz_sub_ui(pm1, p, 1);
+  // mpz_sub_ui (qm1, q, 1);
+  wrapped_nmpz_sub_ui(qm1, q, 1);
+  // mpz_mul (phi, pm1, qm1);
+  wrapped_nmpz_mul(phi, pm1, qm1);
+  // if (mpz_invert (d, e, phi) == 0)
+    // abort ();
+ if (wrapped_nmpz_invert (d, e, phi) == 0){
     abort ();
  }
-
+ 
   printf ("done; pq is %d bits\n", (int) mpz_sizeinbase (pq, 2));
 
   printf ("Precomputing CRT constants\n");
@@ -207,7 +120,7 @@ main (int argc, char *argv[])
   mpz_init (p_i_q);
 //   if (mpz_invert (p_i_q, p, q) == 0)
 //     abort ();
-  if (wrapped_nmpz_invert (p_i_q, p, q,BUF) == 0){
+  if (wrapped_nmpz_invert (p_i_q, p, q) == 0){
     abort ();
   }
    
@@ -215,9 +128,9 @@ main (int argc, char *argv[])
   mpz_init (dp);
   mpz_init (dq);
 //   mpz_mod (dp, d, pm1);
-  wrapped_nmpz_mod(dp,d,pm1,BUF);
+  wrapped_nmpz_mod(dp,d,pm1);
 //   mpz_mod (dq, d, qm1);
-  wrapped_nmpz_mod(dq,d,qm1,BUF);
+  wrapped_nmpz_mod(dq,d,qm1);
 
   printf ("Generating random messages\n");
 
@@ -271,23 +184,24 @@ rsa_sign (mpz_t smsg,
   mpz_init (o);
 
 //   mpz_powm (pr, msg, dp, p);
-  wrapped_nmpz_powm(pr, msg, dp, p, BUF);
+  wrapped_nmpz_powm(pr, msg, dp, p );
 //   mpz_powm (qr, msg, dq, q);
-  wrapped_nmpz_powm(qr, msg, dq, q, BUF);
+  wrapped_nmpz_powm(qr, msg, dq, q );
 
-  mpz_sub (qr_m_pr, qr, pr);
+  // mpz_sub (qr_m_pr, qr, pr);
+  wrapped_nmpz_sub(qr_m_pr, qr, pr);
 
 //   mpz_mul (t, qr_m_pr, p_i_q);
-  wrapped_nmpz_mul(t, qr_m_pr, p_i_q, BUF);
+  wrapped_nmpz_mul(t, qr_m_pr, p_i_q);
 //   mpz_mod (o, t, q);		/* slow mod */
-  wrapped_nmpz_mod(o, t, q, BUF);
+  wrapped_nmpz_mod(o, t, q);
 
 //   mpz_mul (t, o, p);
-  wrapped_nmpz_mul(t, o, p, BUF);
+  wrapped_nmpz_mul(t, o, p);
 //   mpz_add (smsg, pr, t);
-  wrapped_nmpz_add(smsg, pr, t, BUF);
+  wrapped_nmpz_add(smsg, pr, t);
 //   mpz_mod (smsg, smsg, pq);	/* fast mod */
-  wrapped_nmpz_mod(smsg, smsg, pq, BUF);
+  wrapped_nmpz_mod(smsg, smsg, pq);
 
   mpz_clear (o);
   mpz_clear (t);
@@ -328,3 +242,16 @@ int cputime() {
 //   return rus.ru_utime.tv_sec * 1000 + rus.ru_utime.tv_usec / 1000;
 // }
 #endif
+
+int main(){
+  printf("インタプリタ+ネイティブ rsa_native.c\n");
+  // 512 1024 2048
+  int a[] = {512, 1024, 2048};
+
+  for(int i=0; i<3; i++){
+    RsaTest(a[i]);
+    printf("\n");
+  }
+
+  return 0;
+}

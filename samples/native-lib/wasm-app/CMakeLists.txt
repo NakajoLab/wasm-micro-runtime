@@ -28,28 +28,54 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -
 # テスト用の実行ファイル
 # add_executable(test test.c)
 # add_executable(test2 test2.c)
+
+add_executable(check check.c)
 add_executable(multiply multiply.c)
 add_executable(multiply_native multiply_native.c)
 add_executable(divide divide.c)
+add_executable(divide_native divide_native.c)
+add_executable(gcd gcd.c)
+add_executable(gcd_native gcd_native.c)
 add_executable(rsa rsa.c)
 add_executable(rsa_native rsa_native.c)
 
+target_compile_options(check PRIVATE -o check)
 target_compile_options(multiply PRIVATE -o multiply)
 target_compile_options(multiply_native PRIVATE -o multiply_native)
 target_compile_options(divide PRIVATE -o divide)
+target_compile_options(divide_native PRIVATE -o divide_native)
+target_compile_options(gcd PRIVATE -o gcd)
+target_compile_options(gcd_native PRIVATE -o gcd_native)
 target_compile_options(rsa PRIVATE -o rsa)
 target_compile_options(rsa_native PRIVATE -o rsa_native)
 
 # GMP ライブラリをリンク
+target_link_libraries(check PkgConfig::GMP_WASM)
 target_link_libraries(multiply PkgConfig::GMP_WASM)
 target_link_libraries(multiply_native PkgConfig::GMP_WASM)
 target_link_libraries(divide PkgConfig::GMP_WASM)
+target_link_libraries(divide_native PkgConfig::GMP_WASM)
+target_link_libraries(gcd PkgConfig::GMP_WASM)
+target_link_libraries(gcd_native PkgConfig::GMP_WASM)
 target_link_libraries(rsa PkgConfig::GMP_WASM)
 target_link_libraries(rsa_native PkgConfig::GMP_WASM)
 
 get_property(INCLUDE_DIRS TARGET multiply PROPERTY INCLUDE_DIRECTORIES)
 message(STATUS "Final include directories: ${INCLUDE_DIRS}")
 
+# check
+add_custom_target(test
+    DEPENDS  check iwasm test_rsa test_add test_sqrt test_hello test_hello2
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        --native-lib=./libtest_add.so
+        --native-lib=./libtest_sqrt.so
+        --native-lib=./libtest_hello.so
+        --native-lib=./libtest_hello2.so
+        wasm-app/check.wasm
+        --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 # インタプリタ
 add_custom_target(run
     DEPENDS  rsa iwasm test_rsa test_add test_sqrt test_hello test_hello2
@@ -103,5 +129,38 @@ add_custom_target(mul2
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+add_custom_target(div
+    DEPENDS  divide iwasm test_rsa test_add test_sqrt test_hello test_hello2
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        wasm-app/divide.wasm
+        --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 
+add_custom_target(div2
+    DEPENDS  divide_native iwasm test_rsa
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        wasm-app/divide_native.wasm
+        --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 
+add_custom_target(gcd1
+    DEPENDS  gcd iwasm test_rsa
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        wasm-app/gcd.wasm
+        --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_custom_target(gcd2
+    DEPENDS  gcd_native iwasm test_rsa
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        wasm-app/gcd_native.wasm
+        --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)

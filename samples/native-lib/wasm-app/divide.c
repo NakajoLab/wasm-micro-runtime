@@ -20,13 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "gmp.h"
+#include <gmp.h>
 #include "timing.h"
 
 int cputime (void);
 
 int
-main (int argc, char *argv[])
+DivideTest (int M, int N)
 {
   gmp_randstate_t rs;
   mpz_t x, y, z;
@@ -34,16 +34,18 @@ main (int argc, char *argv[])
   double t, f, ops_per_sec;
   int decimals;
 
-  if (argc != 3)
-    {
-      fprintf (stderr, "usage: %s m n\n", argv[0]);
-      fprintf (stderr, "  where m is number of dividend bits\n");
-      fprintf (stderr, "    and n is number of divisor bits\n");
-      return -1;
-    }
+  // if (argc != 3)
+  //   {
+  //     fprintf (stderr, "usage: %s m n\n", argv[0]);
+  //     fprintf (stderr, "  where m is number of dividend bits\n");
+  //     fprintf (stderr, "    and n is number of divisor bits\n");
+  //     return -1;
+  //   }
 
-  m = atoi (argv[1]);
-  n = atoi (argv[2]);
+  // m = atoi (argv[1]);
+  // n = atoi (argv[2]);
+  m = M;
+  n = N;
 
   gmp_randinit_default (rs);
 
@@ -98,12 +100,35 @@ cputime ()
 #include <sys/time.h>
 #include <sys/resource.h>
 
-int
-cputime ()
-{
-  struct rusage rus;
+#include <time.h>
 
-  getrusage (0, &rus);
-  return rus.ru_utime.tv_sec * 1000 + rus.ru_utime.tv_usec / 1000;
+int cputime() {
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts); // プロセスの経過時間を取得
+  return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
+// int
+// cputime ()
+// {
+//   struct rusage rus;
+
+//   getrusage (0, &rus);
+//   return rus.ru_utime.tv_sec * 1000 + rus.ru_utime.tv_usec / 1000;
+// }
 #endif
+
+
+int main(){
+  printf("インタプリタ divide.c\n");
+  
+  // divide_args="8192,32 8192,64 8192,128 8192,4096 131072,65536 8388608,4194304 8192,8064 16777216,262144"
+  int b1[] = {8192,  8192,  8192,  8192,  131072,  8388608,  8192, 16777216};
+  int b2[] = {32,      64,   128,  4096,   65536,  4194304,  8064, 262144};
+
+  for(int i=0; i<8; i++){
+    DivideTest(b1[i], b2[i]);
+    printf("\n");
+  }
+  
+  return 0;
+}
