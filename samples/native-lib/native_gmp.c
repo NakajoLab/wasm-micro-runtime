@@ -533,6 +533,60 @@ nmpz_sub_ui_wrapper(wasm_exec_env_t exec_env, uint32_t *_mp_alloc_rop,
     return 0;
 }
 
+static int
+nmpz_gcdext_wrapper(wasm_exec_env_t exec_env, 
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+     int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, uint32_t *_mp_d_2)
+{
+    mpz_t op1, op2, rop;
+    wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
+
+    op1->_mp_alloc = (_mp_alloc_1) / 2;
+    op1->_mp_size =
+        (_mp_size_1 < 0) ? -(-_mp_size_1 + 1) / 2 : (_mp_size_1 + 1) / 2;
+    op1->_mp_d = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_1);
+
+    op2->_mp_alloc = (_mp_alloc_2) / 2;
+    op2->_mp_size =
+        (_mp_size_2 < 0) ? -(-_mp_size_2 + 1) / 2 : (_mp_size_2 + 1) / 2;
+    op2->_mp_d = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_2);
+
+    if (abs(_mp_size_1) % 2 != 0) {
+        op1->_mp_d[abs(op1->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+    }
+    if (abs(_mp_size_2) % 2 != 0) {
+        op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
+    }
+
+    int alloc =
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
+    rop->_mp_alloc = alloc / 2;
+    rop->_mp_size = 0;
+    rop->_mp_d = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+
+    mpz_mul(rop, op1, op2);
+
+    int rop_size = abs(rop->_mp_size);
+    int flag = (rop->_mp_size < 0) ? -1 : 1;
+    if (rop->_mp_d[abs(rop->_mp_size) - 1] >> 32 == 0) {
+        rop_size = rop_size * 2 - 1;
+    }
+    else {
+        rop_size = rop_size * 2;
+    }
+
+    if(flag == 1){
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size;
+    }else{
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = -rop_size;
+    }
+
+    return 0;
+}
+
 /* clang-format off */
  #define REG_NATIVE_FUNC(func_name, signature) \
      { #func_name, func_name##_wrapper, signature, NULL }

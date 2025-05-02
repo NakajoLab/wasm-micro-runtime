@@ -41,6 +41,11 @@ int nmpz_sub_ui(int *_mp_alloc_rop,  int *_mp_size_rop, unsigned long int *_mp_d
     int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
     unsigned long int _mp_d_2);
 
+int nmpz_gcdext( int *_mp_alloc_rop_1,  int *_mp_size_rop_1, unsigned long int *_mp_d_rop_1,
+    int *_mp_alloc_rop_2,  int *_mp_size_rop_2, unsigned long int *_mp_d_rop_2,
+    int *_mp_alloc_rop_3,  int *_mp_size_rop_3, unsigned long int *_mp_d_rop_3,
+    int _mp_alloc_1, int _mp_size_1, unsigned long int *_mp_d_1,
+    int _mp_alloc_2, int _mp_size_2, unsigned long int *_mp_d_2);
 
 int wrapped_nmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2)
 {
@@ -268,3 +273,42 @@ int wrapped_nmpz_sub_ui(mpz_t rop,  mpz_t op1,  unsigned long int op2){
 }
 
 #endif 
+
+int wrapped_nmpz_gcdext(mpz_t rop1, mpz_t rop2, mpz_t rop3, mpz_t op1, mpz_t op2)
+{
+    if(op1->_mp_alloc % 2 != 0){
+        mpz_realloc(op1, op1->_mp_alloc+1);
+    }
+    if(op2->_mp_alloc % 2 != 0){
+        mpz_realloc(op2, op2->_mp_alloc+1);
+    }
+
+    int alloc_size1 = min(abs(op1->_mp_size) , abs(op2->_mp_size)) + 2;
+    if(alloc_size1  % 2 != 0){
+        alloc_size1++;
+    }
+    mpz_realloc(rop1, alloc_size1);
+
+    int alloc_size2 = max(abs(op1->_mp_size) , abs(op2->_mp_size)) + 2;
+    if(alloc_size2  % 2 != 0){
+        alloc_size2++;
+    }
+    mpz_realloc(rop2, alloc_size2);
+
+    int alloc_size3 = max(abs(op1->_mp_size) , abs(op2->_mp_size)) + 2;
+    if(alloc_size3  % 2 != 0){
+        alloc_size3++;
+    }
+    mpz_realloc(rop3, alloc_size3);
+
+    nmpz_gcdext(&rop1->_mp_alloc, &rop1->_mp_size, rop1->_mp_d,
+        &rop2->_mp_alloc, &rop2->_mp_size, rop2->_mp_d,
+        &rop3->_mp_alloc, &rop3->_mp_size, rop3->_mp_d,
+        op1->_mp_alloc, op1->_mp_size, op1->_mp_d,
+        op2->_mp_alloc, op2->_mp_size, op2->_mp_d);
+    
+    mpz_realloc(rop1, rop1->_mp_size);
+    mpz_realloc(rop2, rop2->_mp_size);
+    mpz_realloc(rop3, rop3->_mp_size);
+    return 0;
+}
