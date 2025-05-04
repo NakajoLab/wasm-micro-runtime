@@ -37,6 +37,7 @@ add_executable(divide_native divide_native.c)
 add_executable(gcd gcd.c)
 add_executable(gcd_native gcd_native.c)
 add_executable(gcdext gcdext.c)
+add_executable(gcdext_native gcdext_native.c)
 add_executable(rsa rsa.c)
 add_executable(rsa_native rsa_native.c)
 
@@ -48,6 +49,7 @@ target_compile_options(divide_native PRIVATE -o divide_native)
 target_compile_options(gcd PRIVATE -o gcd)
 target_compile_options(gcd_native PRIVATE -o gcd_native)
 target_compile_options(gcdext PRIVATE -o gcdext)
+target_compile_options(gcdext_native PRIVATE -o gcdext_native)
 target_compile_options(rsa PRIVATE -o rsa)
 target_compile_options(rsa_native PRIVATE -o rsa_native)
 
@@ -60,6 +62,7 @@ target_link_libraries(divide_native PkgConfig::GMP_WASM)
 target_link_libraries(gcd PkgConfig::GMP_WASM)
 target_link_libraries(gcd_native PkgConfig::GMP_WASM)
 target_link_libraries(gcdext PkgConfig::GMP_WASM)
+target_link_libraries(gcdext_native PkgConfig::GMP_WASM)
 target_link_libraries(rsa PkgConfig::GMP_WASM)
 target_link_libraries(rsa_native PkgConfig::GMP_WASM)
 
@@ -173,6 +176,15 @@ add_custom_target(gcdext1
     COMMAND ./iwasm
         --native-lib=./libtest_rsa.so
         wasm-app/gcdext.wasm
+        --stack-size=262144 --heap-size=268435456
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_custom_target(gcdext2
+    DEPENDS  gcdext_native iwasm test_rsa
+    COMMAND ./iwasm
+        --native-lib=./libtest_rsa.so
+        wasm-app/gcdext_native.wasm
         --stack-size=262144 --heap-size=268435456
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )

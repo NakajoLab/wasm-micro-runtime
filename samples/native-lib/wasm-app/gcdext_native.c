@@ -56,7 +56,7 @@ GcdextTest(int M, int N)
 
     printf("Calibrating CPU speed...");
     fflush(stdout);
-    TIME(t, mpz_gcdext(z, s, NULL, x, y));
+    TIME(t, wrapped_nmpz_gcdext(z, s, NULL, x, y));
     printf("done\n");
 
     niter = 1 + (unsigned long)(1e4 / t);
@@ -65,7 +65,7 @@ GcdextTest(int M, int N)
     fflush(stdout);
     t0 = cputime();
     for (i = niter; i > 0; i--) {
-        mpz_gcdext(z, s, NULL, x, y);
+        wrapped_nmpz_gcdext(z, s, NULL, x, y);
     }
     ti = cputime() - t0;
     printf("done!\n");

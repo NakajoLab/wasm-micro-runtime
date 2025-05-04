@@ -535,13 +535,13 @@ nmpz_sub_ui_wrapper(wasm_exec_env_t exec_env, uint32_t *_mp_alloc_rop,
 
 static int
 nmpz_gcdext_wrapper(wasm_exec_env_t exec_env, 
-    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
-    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
-    uint32_t *_mp_alloc_rop, uint32_t *_mp_size_rop, uint32_t *_mp_d_rop,
+    uint32_t *_mp_alloc_rop1, uint32_t *_mp_size_rop1, uint32_t *_mp_d_rop1,
+    uint32_t *_mp_alloc_rop2, uint32_t *_mp_size_rop2, uint32_t *_mp_d_rop2,
+    uint32_t *_mp_alloc_rop3, uint32_t *_mp_size_rop3, uint32_t *_mp_d_rop3,
      int _mp_alloc_1, int _mp_size_1, uint32_t *_mp_d_1,
     int _mp_alloc_2, int _mp_size_2, uint32_t *_mp_d_2)
 {
-    mpz_t op1, op2, rop;
+    mpz_t op1, op2, rop1, rop2, rop3;
     wasm_module_inst_t inst = wasm_runtime_get_module_inst(exec_env);
 
     op1->_mp_alloc = (_mp_alloc_1) / 2;
@@ -561,27 +561,66 @@ nmpz_gcdext_wrapper(wasm_exec_env_t exec_env,
         op2->_mp_d[abs(op2->_mp_size) - 1] &= 0x00000000FFFFFFFFUL;
     }
 
-    int alloc =
-        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop);
-    rop->_mp_alloc = alloc / 2;
-    rop->_mp_size = 0;
-    rop->_mp_d = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop);
+    int alloc1 =
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop1);
+    rop1->_mp_alloc = alloc1 / 2;
+    rop1->_mp_size = 0;
+    rop1->_mp_d = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop1);
 
-    mpz_mul(rop, op1, op2);
+    int alloc2 =
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop2);
+    rop2->_mp_alloc = alloc2 / 2;
+    rop2->_mp_size = 0;
+    rop2->_mp_d = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop2);
 
-    int rop_size = abs(rop->_mp_size);
-    int flag = (rop->_mp_size < 0) ? -1 : 1;
-    if (rop->_mp_d[abs(rop->_mp_size) - 1] >> 32 == 0) {
-        rop_size = rop_size * 2 - 1;
+    int alloc3 =
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_alloc_rop3);
+    rop3->_mp_alloc = alloc3 / 2;
+    rop3->_mp_size = 0;
+    rop3->_mp_d = wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_d_rop3);
+
+    mpz_gcdext(rop1,rop2,rop3, op1, op2);
+
+    int rop_size1 = abs(rop1->_mp_size);
+    int flag1 = (rop1->_mp_size < 0) ? -1 : 1;
+    if (rop1->_mp_d[abs(rop1->_mp_size) - 1] >> 32 == 0) {
+        rop_size1 = rop_size1 * 2 - 1;
     }
     else {
-        rop_size = rop_size * 2;
+        rop_size1 = rop_size1 * 2;
+    }
+    if(flag1 == 1){
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop1) = rop_size1;
+    }else{
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop1) = -rop_size1;
     }
 
-    if(flag == 1){
-        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = rop_size;
+    int rop_size2 = abs(rop2->_mp_size);
+    int flag2 = (rop2->_mp_size < 0) ? -1 : 1;
+    if (rop2->_mp_d[abs(rop2->_mp_size) - 1] >> 32 == 0) {
+        rop_size2 = rop_size2 * 2 - 1;
+    }
+    else {
+        rop_size2 = rop_size2 * 2;
+    }
+    if(flag2 == 1){
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop2) = rop_size2;
     }else{
-        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop) = -rop_size;
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop2) = -rop_size2;
+    }
+
+    int rop_size3 = abs(rop3->_mp_size);
+    int flag3 = (rop3->_mp_size < 0) ? -1 : 1;
+    if (rop3->_mp_d[abs(rop3->_mp_size) - 1] >> 32 == 0) {
+        rop_size3 = rop_size3 * 2 - 1;
+    }
+    else {
+        rop_size3 = rop_size3 * 2;
+    }
+    if(flag3 == 1){
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop3) = rop_size3;
+    }else{
+        *(int *)wasm_runtime_addr_app_to_native(inst, (uint64_t)_mp_size_rop3) = -rop_size3;
     }
 
     return 0;
@@ -602,6 +641,7 @@ nmpz_gcdext_wrapper(wasm_exec_env_t exec_env,
      REG_NATIVE_FUNC(nmpz_nextprime, "(iiiiii)i"),
      REG_NATIVE_FUNC(nmpz_powm,"(iiiiiiiiiiii)i"),
      REG_NATIVE_FUNC(nmpz_sub_ui, "(iiiiiii)i"),
+     REG_NATIVE_FUNC(nmpz_gcdext,"(iiiiiiiiiiiiiii)i"),
  };
 /* clang-format on */
 
