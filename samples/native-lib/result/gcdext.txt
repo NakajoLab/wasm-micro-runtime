@@ -1,0 +1,32 @@
+[  1%] Building C object wasm-app/CMakeFiles/gcdext.dir/gcdext.c.o
+[  3%] Linking C executable gcdext.wasm
+[  3%] Built target gcdext
+[ 89%] Built target libiwasm
+[ 96%] Built target iwasm
+[100%] Built target test_rsa
+インタプリタ gcdext.c
+Calibrating CPU speed...done
+Multiplying 128-bit number with 128-bit number 126031 times...done!
+RESULT: 10399 operations per second
+
+Calibrating CPU speed...done
+Multiplying 512-bit number with 512-bit number 28765 times...done!
+RESULT: 2828 operations per second
+
+Calibrating CPU speed...done
+Multiplying 8192-bit number with 8192-bit number 337 times...done!
+RESULT: 32.9 operations per second
+
+Calibrating CPU speed...done
+Multiplying 131072-bit number with 131072-bit number 5 times...done!
+RESULT: 0.450 operations per second
+
+Calibrating CPU speed...done
+Multiplying 1048576-bit number with 1048576-bit number 1 times...done!
+RESULT: 0.0244 operations per second
+
+[04:27:12:151 - 7FFFF7C51780]: wasm_mremap_linear_memory: mapped_mem((nil)) in 1271 
+
+[04:27:12:151 - 7FFFF7C51780]: wasm_mremap_linear_memory: new_mem(0x7ffdf7a00000) in 1281 
+
+[100%] Built target gcdext1

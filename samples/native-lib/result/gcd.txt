@@ -1,0 +1,32 @@
+[  1%] Building C object wasm-app/CMakeFiles/gcd.dir/gcd.c.o
+[  3%] Linking C executable gcd.wasm
+[  3%] Built target gcd
+[ 89%] Built target libiwasm
+[ 96%] Built target iwasm
+[100%] Built target test_rsa
+インタプリタ gcd.c
+done
+Multiplying 128-bit number with 128-bit number 135182 times...done!
+RESULT: 14790 operations per second
+
+done
+Multiplying 512-bit number with 512-bit number 37102 times...done!
+RESULT: 3804 operations per second
+
+done
+Multiplying 8192-bit number with 8192-bit number 614 times...done!
+RESULT: 59.7 operations per second
+
+done
+Multiplying 131072-bit number with 131072-bit number 6 times...done!
+RESULT: 0.603 operations per second
+
+done
+Multiplying 1048576-bit number with 1048576-bit number 1 times...done!
+RESULT: 0.0378 operations per second
+
+[04:19:05:805 - 7FFFF7C51780]: wasm_mremap_linear_memory: mapped_mem((nil)) in 1271 
+
+[04:19:05:805 - 7FFFF7C51780]: wasm_mremap_linear_memory: new_mem(0x7ffdf7a00000) in 1281 
+
+[100%] Built target gcd1

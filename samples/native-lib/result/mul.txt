@@ -1,0 +1,76 @@
+[  1%] Building C object wasm-app/CMakeFiles/multiply.dir/multiply.c.o
+[  3%] Linking C executable multiply.wasm
+[  3%] Built target multiply
+[ 77%] Built target libiwasm
+[ 84%] Built target iwasm
+[ 87%] Built target test_add
+[ 90%] Built target test_sqrt
+[ 93%] Built target test_hello
+[ 96%] Built target test_rsa
+[100%] Built target test_hello2
+インタプリタ multiply.c
+Calibrating CPU speed...done
+Squaring a 128-bit number 3404468 times...done!
+RESULT: 367574 operations per second
+
+Calibrating CPU speed...done
+Squaring a 512-bit number 480470 times...done!
+RESULT: 58680 operations per second
+
+Calibrating CPU speed...done
+Squaring a 8192-bit number 5996 times...done!
+RESULT: 573 operations per second
+
+Calibrating CPU speed...done
+Squaring a 131072-bit number 135 times...done!
+RESULT: 16.7 operations per second
+
+Calibrating CPU speed...done
+Squaring a 2097152-bit number 7 times...done!
+RESULT: 0.680 operations per second
+
+Calibrating CPU speed...done
+Multiplying 128-bit number with 128-bit number 4187604 times...done!
+RESULT: 437211 operations per second
+
+Calibrating CPU speed...done
+Multiplying 512-bit number with 512-bit number 347119 times...done!
+RESULT: 37173 operations per second
+
+Calibrating CPU speed...done
+Multiplying 8192-bit number with 8192-bit number 4296 times...done!
+RESULT: 420 operations per second
+
+Calibrating CPU speed...done
+Multiplying 131072-bit number with 131072-bit number 114 times...done!
+RESULT: 11.4 operations per second
+
+Calibrating CPU speed...done
+Multiplying 2097152-bit number with 2097152-bit number 5 times...done!
+RESULT: 0.451 operations per second
+
+Calibrating CPU speed...done
+Multiplying 15000-bit number with 10000-bit number 2270 times...done!
+RESULT: 220 operations per second
+
+Calibrating CPU speed...done
+Multiplying 20000-bit number with 10000-bit number 1861 times...done!
+RESULT: 173 operations per second
+
+Calibrating CPU speed...done
+Multiplying 30000-bit number with 10000-bit number 1199 times...done!
+RESULT: 120 operations per second
+
+Calibrating CPU speed...done
+Multiplying 16777216-bit number with 512-bit number 12 times...done!
+RESULT: 1.21 operations per second
+
+Calibrating CPU speed...done
+Multiplying 16777216-bit number with 262144-bit number 2 times...done!
+RESULT: 0.109 operations per second
+
+[04:05:48:571 - 7FFFF7C51780]: wasm_mremap_linear_memory: mapped_mem((nil)) in 1271 
+
+[04:05:48:571 - 7FFFF7C51780]: wasm_mremap_linear_memory: new_mem(0x7ffdf7a00000) in 1281 
+
+[100%] Built target mul

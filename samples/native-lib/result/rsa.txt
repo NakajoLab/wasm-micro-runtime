@@ -1,0 +1,35 @@
+[  3%] Built target rsa
+[ 77%] Built target libiwasm
+[ 84%] Built target iwasm
+[ 87%] Built target test_add
+[ 90%] Built target test_sqrt
+[ 93%] Built target test_hello
+[ 96%] Built target test_rsa
+[100%] Built target test_hello2
+インタプリタ rsa.c
+Generating p, q, d...done; pq is 512 bits
+Precomputing CRT constants
+Generating random messages
+Calibrating CPU speed...done
+Signing random messages 1216 times...done!
+RESULT: 108 operations per second
+
+Generating p, q, d...done; pq is 1024 bits
+Precomputing CRT constants
+Generating random messages
+Calibrating CPU speed...done
+Signing random messages 184 times...done!
+RESULT: 18.1 operations per second
+
+Generating p, q, d...done; pq is 2048 bits
+Precomputing CRT constants
+Generating random messages
+Calibrating CPU speed...done
+Signing random messages 25 times...done!
+RESULT: 2.54 operations per second
+
+[04:02:51:195 - 7FFFF7C51780]: wasm_mremap_linear_memory: mapped_mem((nil)) in 1271 
+
+[04:02:51:195 - 7FFFF7C51780]: wasm_mremap_linear_memory: new_mem(0x7ffdf7a00000) in 1281 
+
+[100%] Built target run

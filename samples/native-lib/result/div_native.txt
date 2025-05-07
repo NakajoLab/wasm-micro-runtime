@@ -1,0 +1,44 @@
+[  1%] Building C object wasm-app/CMakeFiles/divide_native.dir/divide_native.c.o
+[  3%] Linking C executable divide_native.wasm
+[  3%] Built target divide_native
+[ 89%] Built target libiwasm
+[ 96%] Built target iwasm
+[100%] Built target test_rsa
+インタプリタ+ネイティブ divide_native.c
+Calibrating CPU speed...done
+Dividing an 8192-bit number by an 32-bit number 6153616 times...done!
+RESULT: 637218 operations per second
+
+Calibrating CPU speed...done
+Dividing an 8192-bit number by an 64-bit number 6653402 times...done!
+RESULT: 642530 operations per second
+
+Calibrating CPU speed...done
+Dividing an 8192-bit number by an 128-bit number 5748772 times...done!
+RESULT: 560965 operations per second
+
+Calibrating CPU speed...done
+Dividing an 8192-bit number by an 4096-bit number 2925715 times...done!
+RESULT: 291319 operations per second
+
+Calibrating CPU speed...done
+Dividing an 131072-bit number by an 65536-bit number 32202 times...done!
+RESULT: 3128 operations per second
+
+Calibrating CPU speed...done
+Dividing an 8388608-bit number by an 4194304-bit number 163 times...done!
+RESULT: 16.8 operations per second
+
+Calibrating CPU speed...done
+Dividing an 8192-bit number by an 8064-bit number 9602345 times...done!
+RESULT: 922504 operations per second
+
+Calibrating CPU speed...done
+Dividing an 16777216-bit number by an 262144-bit number 98 times...done!
+RESULT: 9.44 operations per second
+
+[04:17:08:214 - 7FFFF7C51780]: wasm_mremap_linear_memory: mapped_mem((nil)) in 1271 
+
+[04:17:08:214 - 7FFFF7C51780]: wasm_mremap_linear_memory: new_mem(0x7ffdf7a00000) in 1281 
+
+[100%] Built target div2

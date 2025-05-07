@@ -1,0 +1,37 @@
+[  1%] Building C object wasm-app/CMakeFiles/rsa_native.dir/rsa_native.c.o
+[  3%] Linking C executable rsa_native.wasm
+[  3%] Built target rsa_native
+[ 77%] Built target libiwasm
+[ 84%] Built target iwasm
+[ 87%] Built target test_add
+[ 90%] Built target test_sqrt
+[ 93%] Built target test_hello
+[ 96%] Built target test_rsa
+[100%] Built target test_hello2
+インタプリタ+ネイティブ rsa_native.c
+Generating p, q, d...done; pq is 512 bits
+Precomputing CRT constants
+Generating random messages
+Calibrating CPU speed...done
+Signing random messages 50693 times...done!
+RESULT: 6844 operations per second
+
+Generating p, q, d...done; pq is 1024 bits
+Precomputing CRT constants
+Generating random messages
+Calibrating CPU speed...done
+Signing random messages 30206 times...done!
+RESULT: 2955 operations per second
+
+Generating p, q, d...done; pq is 2048 bits
+Precomputing CRT constants
+Generating random messages
+Calibrating CPU speed...done
+Signing random messages 6790 times...done!
+RESULT: 672 operations per second
+
+[04:04:22:151 - 7FFFF7C51780]: wasm_mremap_linear_memory: mapped_mem((nil)) in 1271 
+
+[04:04:22:151 - 7FFFF7C51780]: wasm_mremap_linear_memory: new_mem(0x7ffdf7a00000) in 1281 
+
+[100%] Built target run2
