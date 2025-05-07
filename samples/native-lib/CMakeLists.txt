@@ -76,7 +76,7 @@ include (${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
 
 # Note: we build libiwasm as a shared library here so that it can be
 # shared between iwasm and native libraries.
-add_library(libiwasm STATIC ${WAMR_RUNTIME_LIB_SOURCE})
+add_library(libiwasm SHARED ${WAMR_RUNTIME_LIB_SOURCE})
 set_target_properties (libiwasm PROPERTIES OUTPUT_NAME iwasm)
 
 message(STATUS "WAMR_RUNTIME_LIB_SOURCE (3): ${WAMR_RUNTIME_LIB_SOURCE}")
@@ -93,12 +93,9 @@ add_executable (iwasm ${RUNTIME_SOURCE_ALL})
 
 check_pie_supported()
 
-set_target_properties (iwasm PROPERTIES 
-POSITION_INDEPENDENT_CODE ON 
-LINK_SEARCH_START_STATIC ON
-LINK_SEARCH_END_STATIC ON)
+set_target_properties (iwasm PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(iwasm libiwasm -static -pthread -lm -ldl )
+target_link_libraries(iwasm libiwasm -lpthread -lm -ldl )
 
 ################ native libraries ###############
 add_library (test_add SHARED test_add.c)
